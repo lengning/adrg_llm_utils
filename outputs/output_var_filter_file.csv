@@ -1,0 +1,2 @@
+r_file,outputs,filters,variables
+tlf-demographic.r,tlf-demographic-pilot5.out,ADSL.STUDYID == 'CDISCPILOT01'; ADSL.ITTFL == 'Y',ADSL.AGE; ADSL.AGEGR1; ADSL.RACE; ADSL.HEIGHTBL; ADSL.WEIGHTBL; ADSL.BMIBL; ADSL.MMSETOT
