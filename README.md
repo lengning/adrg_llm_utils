@@ -40,13 +40,13 @@ This repository contains a small tool to audit R scripts and extract three items
 Analyze a folder of `.r` files:
 
 ```bash
-python -m var_filter.main --folder ./r_scripts --out audit.csv --print
+python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv --print
 ```
 
 Analyze a single `.r` file:
 
 ```bash
-python -m var_filter.main --file r_scripts/tlf-demographic.r --out one_row.csv --print
+python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv --print
 ```
 
 Choose a specific model (default is `gpt-4o-mini`):
@@ -58,4 +58,36 @@ python -m var_filter.main --folder ./r_scripts --model gpt-4o-mini
 
 The tool writes a CSV file with columns: `r_file`, `outputs`, `filters`, `variables`.
 
-### Next module
+### Convert renv to a table with package names and versions
+
+A tiny CLI to convert an R renv.lock into a tidy CSV of package names and versions for ADRG workflows.
+
+What it does
+
+- Reads renv.lock (JSON)
+- Extracts all packages and their versions (skips the R runtime entry)
+- Writes a sorted R_Packages_And_Versions.csv with headers: Package,Version
+
+```bash
+python -m renv_to_table.main --renv inputs/renv.lock --out outputs/r_pkg_versions.csv
+```
+
+### Write user-friendly package descriptions
+
+This CLI reads a CSV of R package names, fetches each package's CRAN `DESCRIPTION` file,
+optionally runs an LLM to produce a one-sentence summary, and writes an output CSV with
+`Package`, `Version`, and `Description`.
+
+
+```bash
+Rscript pkg_describer/main.R --input outputs/pkg_descriptions.csv --output outputs/pkg_descriptions.csv
+```
+
+If you want to skip LLM calls and only use the CRAN DESCRIPTION text, pass `--no-llm`.
+
+Environment variables:
+- `MODEL_NAME` - optional default model name (e.g. `gpt-4o-mini`). Can also be passed via `-m`.
+
+Notes:
+- An R script is used instead of python because of the convinience of using `tools` and `btw` r packages
+
