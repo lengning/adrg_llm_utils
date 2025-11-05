@@ -459,7 +459,6 @@ pkgdesc <- sapply(pkgs, function(pkg) {
   }
 })
 
-print(Sys.getenv("OPENAI_API_KEY"))
 
 if (opt$`no-llm`) {
   pkgdesc_out <- cbind(tab_pkgs, unlist(pkgdesc))
