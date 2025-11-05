@@ -80,7 +80,7 @@ optionally runs an LLM to produce a one-sentence summary, and writes an output C
 
 
 ```bash
-Rscript pkg_describer/main.R --input outputs/pkg_descriptions.csv --output outputs/pkg_descriptions.csv
+Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs/pkg_descriptions.csv
 ```
 
 If you want to skip LLM calls and only use the CRAN DESCRIPTION text, pass `--no-llm`.
