@@ -1,6 +1,6 @@
 # Utility Modules for LLM-automated ADRG generation
 
-These utility modules provide the scaffolding for LLM-automated ADRG generation. The ADRG (Analysis Data Reviewer’s Guide) is a companion document that explains the contents, derivations, structure, and intended use of submitted ADaM analysis datasets—capturing provenance, conventions, and known limitations—to help regulators understand and reproduce results.
+These utility modules provide the scaffolding for LLM-automated ADRG generation. The ADRG (Analysis Data Reviewer's Guide) is a companion document that explains the contents, derivations, structure, and intended use of submitted ADaM analysis datasets—capturing provenance, conventions, and known limitations—to help regulators understand and reproduce results.
 
 [Example ADRG](https://github.com/RConsortium/submissions-pilot5-datasetjson-to-fda/blob/main/m5/datasets/rconsortiumpilot5/analysis/adam/datasets/adrg.pdf)
 
@@ -8,19 +8,27 @@ These utility modules provide the scaffolding for LLM-automated ADRG generation.
 
 - Python 3.8+
 - `pandas`
-- `langchain_openai` and `langchain_core` (the code uses `ChatOpenAI` and `ChatPromptTemplate`)
+- `langchain_openai` and `langchain_core` (for LLM-based modules)
+- `pdfplumber` (for protocol PDF extraction)
+- R (for `pkg_describer` module) with packages: `optparse`, `btw`, `ellmer`, `tools`
 
-Install required packages (example):
+Install required Python packages:
 
 ```bash
-pip install pandas langchain-openai langchain-core
+pip install pandas langchain-openai langchain-core pdfplumber
 ```
 
-Note: package names may differ depending on your environment. Adjust as needed.
+For the `pkg_describer` module, install required R packages:
+
+```r
+install.packages(c("optparse", "btw", "ellmer", "tools"))
+```
+
+Note: Package names may differ depending on your environment. Adjust as needed.
 
 ## Configuration
 
-The script will try to read an OpenAI API key from the `OPENAI_API_KEY` environment variable. Set it like this in macOS/zsh:
+All LLM-based modules read the OpenAI API key from the `OPENAI_API_KEY` environment variable. Set it like this in macOS/zsh:
 
 ```bash
 export OPENAI_API_KEY="sk-..."
@@ -28,66 +36,202 @@ export OPENAI_API_KEY="sk-..."
 
 If the environment variable is not set, the underlying `ChatOpenAI` client will use its default behavior for locating credentials.
 
+For the `pkg_describer` module, you can also set `MODEL_NAME` as an environment variable to specify a default model name.
+
 ## Modules and Their Usage
 
-### var_filter: 
+### var_filter
 
-This repository contains a small tool to audit R scripts and extract three items using an LLM:
-- filtering criteria (filters)
-- variables used (variables)
-- output file names (outputs)
+**Description:** Audits R scripts and extracts filtering criteria, variables used, and output file names using an LLM.
+
+**What it does:**
+- Analyzes R script files (`.r` extension)
+- Extracts filtering criteria applied in the code
+- Identifies variables used for analyses
+- Extracts output file names
+- Uses an LLM to parse and extract structured information
+
+**Usage:**
 
 Analyze a folder of `.r` files:
-
 ```bash
-python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv --print
+python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv
 ```
 
 Analyze a single `.r` file:
-
 ```bash
-python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv --print
+python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv
 ```
 
-Choose a specific model (default is `gpt-4o-mini`):
+**Options:**
+- `--folder PATH`: Path to folder containing `.r` files (mutually exclusive with `--file`)
+- `--file PATH`: Path to a single `.r` file to analyze (mutually exclusive with `--folder`)
+- `--model NAME`: LLM model name to use (default: `gpt-4o-mini`)
+- `--out PATH`: Output CSV filename (default: `r_code_audit.csv`)
+- `--print`: Print results to stdout
 
+**Output:** CSV file with columns: `r_file`, `outputs`, `filters`, `variables`
+
+**Example:**
 ```bash
-python -m var_filter.main --folder ./r_scripts --model gpt-4o-mini
+python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
 ```
 
+---
 
-The tool writes a CSV file with columns: `r_file`, `outputs`, `filters`, `variables`.
+### renv_to_table
 
-### Convert renv to a table with package names and versions
+**Description:** Converts an R `renv.lock` file into a tidy CSV of package names and versions for ADRG workflows.
 
-A tiny CLI to convert an R renv.lock into a tidy CSV of package names and versions for ADRG workflows.
+**What it does:**
+- Reads `renv.lock` (JSON format)
+- Extracts all packages and their versions
+- Skips the R runtime entry
+- Writes a sorted CSV with package names and versions
 
-What it does
-
-- Reads renv.lock (JSON)
-- Extracts all packages and their versions (skips the R runtime entry)
-- Writes a sorted R_Packages_And_Versions.csv with headers: Package,Version
-
+**Usage:**
 ```bash
 python -m renv_to_table.main --renv inputs/renv.lock --out outputs/r_pkg_versions.csv
 ```
 
-### Write user-friendly package descriptions
+**Options:**
+- `--renv PATH`: Path to `renv.lock` file (required)
+- `--out PATH`: Output CSV path (optional; if omitted, uses `$R_PACKAGES_OUT` environment variable or places `R_Packages_And_Versions.csv` next to the `renv.lock` file; use `-` to write to stdout)
 
-This CLI reads a CSV of R package names, fetches each package's CRAN `DESCRIPTION` file,
-optionally runs an LLM to produce a one-sentence summary, and writes an output CSV with
-`Package`, `Version`, and `Description`.
+**Output:** CSV file with columns: `Package`, `Version`
 
+**Example:**
+```bash
+python -m renv_to_table.main --renv inputs/renv.lock --out outputs/r_pkg_versions.csv
+```
 
+---
+
+### pkg_describer
+
+**Description:** Reads a CSV of R package names, fetches each package's CRAN DESCRIPTION file, and optionally uses an LLM to produce user-friendly one-sentence summaries.
+
+**What it does:**
+- Reads a CSV file with package names (and optionally versions)
+- Fetches each package's CRAN DESCRIPTION file using `tools::CRAN_package_db()`
+- Optionally uses an LLM to generate one-sentence summaries of package functionality
+- Writes an output CSV with package information and descriptions
+
+**Usage:**
 ```bash
 Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs/pkg_descriptions.csv
 ```
 
-If you want to skip LLM calls and only use the CRAN DESCRIPTION text, pass `--no-llm`.
+**Options:**
+- `-i, --input PATH`: Input CSV path with a column of package names (required)
+- `-o, --output PATH`: Output CSV path (required)
+- `-m, --model NAME`: LLM model name to use (default: `gpt-4o-mini`)
+- `--no-llm`: Skip LLM calls; only use local CRAN DESCRIPTION text
 
-Environment variables:
-- `MODEL_NAME` - optional default model name (e.g. `gpt-4o-mini`). Can also be passed via `-m`.
+**Environment variables:**
+- `MODEL_NAME`: Optional default model name (e.g., `gpt-4o-mini`). Can also be passed via `-m` option.
+- `OPENAI_API_KEY`: OpenAI API key for LLM calls (required if not using `--no-llm`)
 
-Notes:
-- An R script is used instead of python because of the convinience of using `tools` and `btw` r packages
+**Output:** CSV file with columns: `Package`, `Version`, `Description`
 
+**Notes:**
+- An R script is used instead of Python because of the convenience of using `tools` and `btw` R packages
+- If `--no-llm` is used, the Description column will contain the raw CRAN DESCRIPTION text
+
+**Example:**
+```bash
+Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs/pkg_descriptions.csv --model gpt-4o-mini
+```
+
+---
+
+### sdtm_medra_version
+
+**Description:** Extracts SDTM Implementation Guide version, SDTM model version, and MedDRA version from Define-XML files.
+
+**What it does:**
+- Parses Define-XML files
+- Extracts SDTM Implementation Guide version
+- Maps SDTM IG version to corresponding SDTM model version
+- Detects MedDRA version from Define-XML
+- Outputs results in a clean CSV format
+
+**Usage:**
+```bash
+python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+```
+
+**Options:**
+- `--define PATH`: Path to `define.xml` file (required)
+- `--out PATH`: Output CSV file (default: `standards_from_define.csv`)
+
+**Output:** CSV file with columns: `Standard or Dictionary`, `Versions Used`
+
+**Example:**
+```bash
+python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+```
+
+---
+
+### protocol_retrieve
+
+**Description:** Extracts protocol information from clinical trial protocol PDF documents and generates a structured markdown file for ADRG workflows.
+
+**What it does:**
+- Extracts text from protocol PDF files using `pdfplumber`
+- Uses an LLM to extract structured protocol information:
+  - Protocol Number
+  - Protocol Title
+  - Protocol Versions (including amendments and changes affecting data analysis)
+  - Protocol Design in Relation to ADaM Concepts
+- Generates a markdown file in the ADRG protocol description format
+
+**Usage:**
+```bash
+python -m protocol_retrieve.main --protocol inputs/protocol_cdiscpilot01.pdf --out outputs/protocol_description.md
+```
+
+**Options:**
+- `--protocol PATH`: Path to protocol PDF file (required)
+- `--out PATH`: Output markdown file (default: `protocol_description.md`)
+- `--model NAME`: LLM model name to use (default: `gpt-4o-mini`)
+- `--max-pages N`: Maximum number of pages to process (optional; useful for very long PDFs; default: all pages)
+
+**Output:** Markdown file with sections for Protocol Number and Title, Protocol Versions, and Protocol Design in Relation to ADaM Concepts
+
+**Example:**
+```bash
+python -m protocol_retrieve.main --protocol inputs/protocol_cdiscpilot01.pdf --out outputs/protocol_description.md --model gpt-4o-mini --max-pages 50
+```
+
+---
+
+## Workflow Example
+
+A typical workflow might involve:
+
+1. **Extract R package versions:**
+   ```bash
+   python -m renv_to_table.main --renv inputs/renv.lock --out outputs/r_pkg_versions.csv
+   ```
+
+2. **Generate package descriptions:**
+   ```bash
+   Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs/pkg_descriptions.csv
+   ```
+
+3. **Extract protocol information:**
+   ```bash
+   python -m protocol_retrieve.main --protocol inputs/protocol_cdiscpilot01.pdf --out outputs/protocol_description.md
+   ```
+
+4. **Extract SDTM/MedDRA versions:**
+   ```bash
+   python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+   ```
+
+5. **Analyze R scripts:**
+   ```bash
+   python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv
+   ```
