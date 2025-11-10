@@ -20,10 +20,15 @@ PROTOCOL_EXTRACTION_PROMPT = ChatPromptTemplate.from_messages([
      "- Protocol Title: The full title of the protocol\n"
      "- Protocol Versions: List any protocol versions, amendments, or version changes mentioned. "
      "Note any changes in protocol amendments that affected data analysis.\n"
-     "- Protocol Design: Describe how the protocol design relates to ADaM concepts, including "
-     "how standard ADaM variables for treatment, analysis period, analysis phase, etc. relate to "
-     "the design of the protocol. This can be described in text format.\n\n"
-     "Return a JSON object with the following keys: protocol_number, protocol_title, protocol_versions, protocol_design. "
+     "- Protocol Design: Extract the following four subsections:\n"
+     "  1) Protocol Objective: The primary objective of the study\n"
+     "  2) Protocol Methodology: The methodology used in the study, including study design type, "
+     "randomization, blinding, etc.\n"
+     "  3) Number of Subjects Planned: Total number of subjects planned and breakdown by group/arm/treatment\n"
+     "  4) Study Design Schema: A description or summary of the study design schema, including "
+     "treatment groups, phases, periods, and how they relate to ADaM concepts (treatment, analysis period, analysis phase, etc.)\n\n"
+     "Return a JSON object with the following keys: protocol_number, protocol_title, protocol_versions, "
+     "protocol_objective, protocol_methodology, number_of_subjects, study_design_schema. "
      "If any information is not found, use an empty string for that field."),
     ("human",
      "Extract protocol information from the following protocol document text:\n\n{protocol_text}")
@@ -109,7 +114,10 @@ def extract_protocol_info(pdf_path: Path, llm, max_pages: int = None) -> Dict[st
             "protocol_number": result.get("protocol_number", ""),
             "protocol_title": result.get("protocol_title", ""),
             "protocol_versions": result.get("protocol_versions", ""),
-            "protocol_design": result.get("protocol_design", ""),
+            "protocol_objective": result.get("protocol_objective", ""),
+            "protocol_methodology": result.get("protocol_methodology", ""),
+            "number_of_subjects": result.get("number_of_subjects", ""),
+            "study_design_schema": result.get("study_design_schema", ""),
         }
     except Exception as e:
         print(f"Error extracting protocol information: {e}", file=sys.stderr)
@@ -117,7 +125,10 @@ def extract_protocol_info(pdf_path: Path, llm, max_pages: int = None) -> Dict[st
             "protocol_number": "",
             "protocol_title": "",
             "protocol_versions": "",
-            "protocol_design": "",
+            "protocol_objective": "",
+            "protocol_methodology": "",
+            "number_of_subjects": "",
+            "study_design_schema": "",
         }
 
 # ========= Markdown Generation =========
@@ -146,13 +157,30 @@ Protocol Versions:
 
 ## Protocol Designin Relation to ADaM Concepts
 
-{protocol_design}
+### 1) Protocol Objective
+
+{protocol_objective}
+
+### 2) Protocol Methodology
+
+{protocol_methodology}
+
+### 3) Number of Subjects Planned in Total and by Group
+
+{number_of_subjects}
+
+### 4) Study Design Schema
+
+{study_design_schema}
 
 """.format(
         protocol_number=protocol_info.get("protocol_number", ""),
         protocol_title=protocol_info.get("protocol_title", ""),
         protocol_versions=protocol_info.get("protocol_versions", ""),
-        protocol_design=protocol_info.get("protocol_design", ""),
+        protocol_objective=protocol_info.get("protocol_objective", ""),
+        protocol_methodology=protocol_info.get("protocol_methodology", ""),
+        number_of_subjects=protocol_info.get("number_of_subjects", ""),
+        study_design_schema=protocol_info.get("study_design_schema", ""),
     )
     
     return markdown

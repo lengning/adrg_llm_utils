@@ -8,10 +8,24 @@ Protocol Title: Safety and Efficacy of the Xanomeline Transdermal Therapeutic Sy
 
 Protocol Versions:
 
-The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Changes to the protocol-specified analyses are described in the statistical analysis plan (Appendix 9). These changes included omission of secondary or sensitivity analyses, omission of some efficacy endpoints, omission of some safety endpoints, and the inclusion of additional types of analyses.
+The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Changes to the protocol-specified analyses are described in the statistical analysis plan.
 
 
 ## Protocol Designin Relation to ADaM Concepts
 
-The protocol design is a prospective, randomized, multi-center, double-blind, placebo-controlled, parallel-group study. It involves three treatment groups: placebo, xanomeline low dose, and xanomeline high dose. Standard ADaM variables are utilized, including treatment group as a categorical variable, analysis period defined as the duration of treatment (26 weeks), and analysis phase focusing on efficacy and safety endpoints. The primary efficacy endpoints are the change from baseline in ADAS-Cog (11) and CIBIC+ at Week 24, with analyses conducted using ANCOVA and LOCF imputation for missing values. The design also includes safety assessments through adverse event reporting and laboratory evaluations.
+### 1) Protocol Objective
+
+The primary objectives of this study were to determine if there is a statistically significant relationship between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose, and to document the safety profile of the xanomeline TTS.
+
+### 2) Protocol Methodology
+
+This was a prospective, randomized, multi-center, double-blind, placebo-controlled, parallel-group study. Subjects were randomized equally to placebo, xanomeline low dose, or xanomeline high dose. Subjects applied 2 patches daily and were followed for a total of 26 weeks.
+
+### 3) Number of Subjects Planned in Total and by Group
+
+300 subjects total (100 subjects in each of 3 groups)
+
+### 4) Study Design Schema
+
+The study included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24.
 

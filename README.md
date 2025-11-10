@@ -147,13 +147,14 @@ Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs
 
 ### sdtm_medra_version
 
-**Description:** Extracts SDTM Implementation Guide version, SDTM model version, and MedDRA version from Define-XML files.
+**Description:** Extracts SDTM Implementation Guide version, SDTM model version, MedDRA version, and Define-XML version from Define-XML files.
 
 **What it does:**
 - Parses Define-XML files
 - Extracts SDTM Implementation Guide version
 - Maps SDTM IG version to corresponding SDTM model version
 - Detects MedDRA version from Define-XML
+- Extracts Define-XML version (DefineVersion attribute)
 - Outputs results in a clean CSV format
 
 **Usage:**
@@ -165,7 +166,10 @@ python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_
 - `--define PATH`: Path to `define.xml` file (required)
 - `--out PATH`: Output CSV file (default: `standards_from_define.csv`)
 
-**Output:** CSV file with columns: `Standard or Dictionary`, `Versions Used`
+**Output:** CSV file with columns: `Standard or Dictionary`, `Versions Used`. Contains rows for:
+- SDTM (Implementation Guide Version and SDTM Version)
+- Medical Events Dictionary (MedDRA version)
+- Define-XML (Define version)
 
 **Example:**
 ```bash

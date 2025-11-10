@@ -36,6 +36,7 @@ def extract_from_define(define_xml: Path):
     attrs = {k.split("}")[-1]: v for k, v in mdv.attrib.items()}
     sdtm_ig = (attrs.get("StandardVersion") or "").strip()
     sdtm_model = SDTM_IG_TO_MODEL.get(sdtm_ig, "")
+    define_version = (attrs.get("DefineVersion") or "").strip()
 
     # Best-effort MedDRA version sniff: prefer XML attributes over brittle regex
     meddra = ""
@@ -64,18 +65,18 @@ def extract_from_define(define_xml: Path):
             if m2:
                 meddra = m2.group(1)
 
-    return sdtm_ig, sdtm_model, meddra
+    return sdtm_ig, sdtm_model, meddra, define_version
 
 def main():
     ap = argparse.ArgumentParser(
-        description="Extract SDTM IG Version, SDTM Version, and MedDRA version from define.xml and write a CSV."
+        description="Extract SDTM IG Version, SDTM Version, MedDRA version, and Define version from define.xml and write a CSV."
     )
     ap.add_argument("--define", required=True, type=Path, help="Path to define.xml")
     ap.add_argument("--out", type=Path, default=Path("standards_from_define.csv"),
                     help="Output CSV file (default: standards_from_define.csv)")
     args = ap.parse_args()
 
-    sdtm_ig, sdtm_model, meddra = extract_from_define(args.define)
+    sdtm_ig, sdtm_model, meddra, define_version = extract_from_define(args.define)
 
     rows = []
     sdtm_bits = []
@@ -85,6 +86,7 @@ def main():
         sdtm_bits.append(f"SDTM Version {sdtm_model}")
     rows.append(["SDTM", " ; ".join(sdtm_bits)])
     rows.append(["Medical Events Dictionary", f"MedDRA version {meddra}" if meddra else ""])
+    rows.append(["Define-XML", f"Define version {define_version}" if define_version else ""])
 
     pd.DataFrame(rows, columns=["Standard or Dictionary", "Versions Used"]).to_csv(args.out, index=False)
 
