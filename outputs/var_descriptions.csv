@@ -1,0 +1,19 @@
+Variable Name,Variable Description
+AGE,Age
+AGEGR1,Pooled Age Group 1
+AVAL,Analysis Value
+AVISITN,Analysis Visit (N)
+BASE,Baseline Value
+BMIBL,Baseline BMI (kg/m^2)
+CHG,Change from Baseline
+CNSR,Censor
+HEIGHTBL,Baseline Height (cm)
+MMSETOT,MMSE Total
+PARAM,Parameter
+PARAMCD,Parameter Code
+RACE,Race
+STUDYID,Study Identifier
+TRT01A,Actual Treatment for Period 01
+TRTPN,Planned Treatment (N)
+USUBJID,Unique Subject Identifier
+WEIGHTBL,Baseline Weight (kg)

@@ -15,7 +15,7 @@ These utility modules provide the scaffolding for LLM-automated ADRG generation.
 Install required Python packages:
 
 ```bash
-pip install pandas langchain-openai langchain-core pdfplumber
+pip install pandas langchain-openai langchain-core pdfplumber openpyxl
 ```
 
 For the `pkg_describer` module, install required R packages:
@@ -75,6 +75,56 @@ python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/outpu
 **Example:**
 ```bash
 python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
+```
+
+---
+
+### adam_info
+
+**Description:** Extracts variable descriptions from ADaM spec files and analyzes dataset dependencies by examining the Methods sheet.
+
+**What it does:**
+- Reads ADaM specification Excel files (with Datasets, Variables, and Methods sheets)
+- Extracts variable descriptions for key variables or variables from an input CSV file
+- Analyzes the Methods sheet to determine dataset dependencies
+- Outputs unique variable names (without dataset prefix) with their descriptions
+- Generates a dataset dependency table showing which datasets depend on which other datasets
+
+**Usage:**
+
+Extract variable descriptions from key variables in Datasets sheet:
+```bash
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+```
+
+Extract variable descriptions from variables in an input CSV file (e.g., from var_filter output):
+```bash
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+```
+
+**Options:**
+- `--spec PATH`: Path to ADaM spec Excel file with Datasets, Variables, and Methods sheets (required)
+- `--out PATH`: Path to output CSV file for variable descriptions (required)
+- `--input PATH`: Optional path to input CSV file with `variables` column (e.g., output from `var_filter`). If not provided, uses key variables from Datasets sheet.
+- `--deps-out PATH`: Optional path to output CSV file for dataset dependencies
+- `--print`: Print results to stdout
+
+**Output:** 
+- Variable descriptions CSV: `Variable Name`, `Variable Description` (unique variables without dataset prefix)
+- Dataset dependencies CSV (if `--deps-out` provided): `dataset name`, `depend on the following datasets`
+
+**Notes:**
+- Variables are extracted as unique names (dataset prefix removed)
+- Dataset dependencies are inferred by analyzing references in the Methods sheet
+- If a variable appears in multiple datasets, only one entry is output (first description found)
+
+**Example:**
+```bash
+# Extract from key variables in Datasets sheet
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --print
+
+# Extract from variables found in R scripts (via var_filter output)
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --print
 ```
 
 ---
@@ -238,4 +288,9 @@ A typical workflow might involve:
 5. **Analyze R scripts:**
    ```bash
    python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv
+   ```
+
+6. **Extract variable descriptions and dataset dependencies:**
+   ```bash
+   python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
    ```
