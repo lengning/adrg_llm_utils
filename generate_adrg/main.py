@@ -24,7 +24,6 @@ import argparse
 import csv
 import json
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -389,92 +388,6 @@ def extract_protocol_number(protocol_md: str) -> Optional[str]:
     return value or None
 
 
-def markdown_to_html(markdown_text: str) -> str:
-    try:
-        import markdown  # type: ignore
-
-        return markdown.markdown(
-            markdown_text,
-            extensions=["tables", "fenced_code", "sane_lists"],
-            output_format="html5",
-        )
-    except ImportError:
-        try:
-            import markdown2  # type: ignore
-
-            return markdown2.markdown(
-                markdown_text,
-                extras=["tables", "fenced-code-blocks", "strike", "task_list"],
-            )
-        except ImportError as exc:  # pragma: no cover - environment dependent
-            raise PipelineError(
-                "Markdown rendering requested but neither 'markdown' nor 'markdown2' "
-                "Python packages are available. Install one of them to enable HTML output."
-            ) from exc
-
-
-def wrap_html_document(body_html: str, title: Optional[str] = None) -> str:
-    doc_title = title or "Analysis Data Reviewer's Guide"
-    return (
-        "<!DOCTYPE html>\n"
-        "<html lang=\"en\">\n"
-        "<head>\n"
-        f"  <meta charset=\"utf-8\" />\n"
-        f"  <title>{doc_title}</title>\n"
-        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
-        "</head>\n"
-        "<body>\n"
-        f"{body_html}\n"
-        "</body>\n"
-        "</html>\n"
-    )
-
-
-def render_with_quarto(source_path: Path, html_output_path: Path) -> bool:
-    """Render the provided Quarto file to HTML using the Quarto CLI.
-
-    Returns True if rendering was performed, False if Quarto is unavailable.
-    """
-    quarto_bin = shutil.which("quarto")
-    if not quarto_bin:
-        return False
-
-    ensure_parent(html_output_path)
-
-    argv = [
-        quarto_bin,
-        "render",
-        str(source_path),
-        "--to",
-        "html",
-        "--output",
-        html_output_path.name,
-    ]
-    if html_output_path.parent != source_path.parent:
-        argv.extend(["--output-dir", str(html_output_path.parent)])
-
-    try:
-        subprocess.run(argv, check=True, cwd=source_path.parent)
-    except subprocess.CalledProcessError as exc:
-        cmd = " ".join(map(str, exc.cmd)) if exc.cmd else "<quarto>"
-        raise PipelineError(
-            f"Quarto rendering failed with exit code {exc.returncode}: {cmd}"
-        ) from exc
-
-    if html_output_path.exists():
-        return True
-
-    default_html = source_path.with_suffix(".html")
-    if default_html.exists():
-        default_html.replace(html_output_path)
-        return True
-
-    raise PipelineError(
-        "Quarto rendering completed but HTML output was not produced at the expected "
-        f"location: {html_output_path}"
-    )
-
-
 def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate a filled ADRG document using configured utilities."
@@ -644,26 +557,6 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     ensure_parent(output_path)
     output_path.write_text(filled_text, encoding="utf-8")
     print(f"Filled ADRG document written to: {output_path}")
-
-    html_output_value = template_cfg.get("html_output")
-    if html_output_value:
-        html_output_path = resolve_path(html_output_value)
-    else:
-        if output_path.suffix:
-            html_output_path = output_path.with_suffix(".html")
-        else:
-            html_output_path = output_path.with_name(f"{output_path.name}.html")
-    rendered_with_quarto = render_with_quarto(output_path, html_output_path)
-    if not rendered_with_quarto:
-        ensure_parent(html_output_path)
-        html_body = markdown_to_html(filled_text)
-        html_document = wrap_html_document(html_body, title=protocol_number)
-        html_output_path.write_text(html_document, encoding="utf-8")
-        print(f"Rendered ADRG HTML document written to: {html_output_path}")
-    else:
-        print(
-            f"Rendered ADRG HTML document written to: {html_output_path} (via Quarto)"
-        )
 
 
 if __name__ == "__main__":

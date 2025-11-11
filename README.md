@@ -10,7 +10,8 @@ These utility modules provide the scaffolding for LLM-automated ADRG generation.
 - `pandas`
 - `langchain_openai` and `langchain_core` (for LLM-based modules)
 - `pdfplumber` (for protocol PDF extraction)
-- `markdown` (or `markdown2`) for HTML rendering of the filled ADRG
+- `markdown` (or `markdown2`) for optional HTML rendering of the filled ADRG
+- Quarto CLI (optional; required if you plan to render the filled ADRG to PDF or HTML)
 - R (for `pkg_describer` module) with packages: `optparse`, `btw`, `ellmer`, `tools`
 
 Install required Python packages:
@@ -27,6 +28,12 @@ install.packages(c("optparse", "btw", "ellmer", "tools"))
 ```
 
 Note: Package names may differ depending on your environment. Adjust as needed.
+
+Install the Quarto CLI by following the [official instructions](https://quarto.org/docs/get-started/) or, on macOS, by running:
+
+```bash
+brew install quarto
+```
 
 ## Configuration
 
@@ -307,4 +314,8 @@ Once you have run the individual modules (or if you prefer to orchestrate them i
    python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json --skip-sdtm --skip-protocol --skip-var-filter --skip-adam-info --skip-renv --skip-pkg-describer
    ```
 3. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
-4. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). An HTML rendition is generated alongside it by default (same filename with a `.html` extension) unless you override the destination via the optional `html_output` field in the template configuration. When the Quarto CLI is available, it is used for rendering; otherwise a Markdown fallback renderer is applied.
+4. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). To render the filled document to PDF (or HTML), use the Quarto CLI. For example:
+
+   ```bash
+   quarto render outputs/adrg-filled.qmd --to pdf
+   ```
