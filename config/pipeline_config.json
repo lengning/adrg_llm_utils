@@ -10,7 +10,7 @@
     "max_pages": null
   },
   "var_filter": {
-    "folder": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/r_scripts",
+    "folder": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/tlf_scripts",
     "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/output_var_filter_folder.csv",
     "model": "gpt-4o-mini"
   },
