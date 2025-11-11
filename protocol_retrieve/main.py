@@ -142,9 +142,9 @@ def generate_markdown(protocol_info: Dict[str, str]) -> str:
     Returns:
         Formatted markdown string
     """
-    markdown = """# Protocol Description
+    markdown = """
 
-## ProtocolNumberand Title
+## Protocol Number and Title
 
 Protocol Number: {protocol_number}
 
@@ -157,19 +157,19 @@ Protocol Versions:
 
 ## Protocol Designin Relation to ADaM Concepts
 
-### 1) Protocol Objective
+### Protocol Objective
 
 {protocol_objective}
 
-### 2) Protocol Methodology
+### Protocol Methodology
 
 {protocol_methodology}
 
-### 3) Number of Subjects Planned in Total and by Group
+### Number of Subjects Planned in Total and by Group
 
 {number_of_subjects}
 
-### 4) Study Design Schema
+### Study Design Schema
 
 {study_design_schema}
 

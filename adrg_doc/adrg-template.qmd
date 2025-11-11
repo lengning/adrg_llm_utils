@@ -1,0 +1,259 @@
+---
+title: "Analysis Data Reviewer’s Guide"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+table {
+  border-collapse: collapse;
+}
+
+table,
+thead,
+tbody,
+tfoot,
+th,
+td,
+tr {
+  border: 1px solid #000;
+}
+</style>
+```
+
+
+<Sponsor Name>
+
+Study <Protocol Number>
+
+ADRG Template Version ccyy-mm-dd
+
+
+# Introduction
+
+## Purpose
+
+This document provides context for the analysis datasets and terminology that benefit from additional explanation beyond the Data Definition document (define.xml)for an invididual study.  In addition, this document provides a summary of ADaM conformance findings.  
+
+## Acronyms
+
+| Acronym | Translation |
+| --- | --- |
+| aCRF | Annotated Case Report Form |
+| ADaM | Analysis Dataset Model |
+| ADRG | Analysis Data Reviewer’s Guide |
+| eCRF | Electronic Case Report Form |
+| eDT | Electronic Data Transfer (e.g. central lab data, ECG vendor data, PK data, etc.) |
+| IG | Implementation Guide |
+| NA | Not Applicable |
+| SDTM | Study Data Tabulation Model |
+| TAUG | Therapeutic Area User Guide |
+
+# Dataset Standards
+
+{sdtm medra version table}
+
+## Source Data Used for Analysis Dataset Creation
+
+(insert your text here)
+
+Include the following text if applicable: Please refer to the Legacy Data Conversion Plan and Report Appendix for additional details.
+
+# Protocol Description
+
+{protocol info md}
+
+# Analysis Considerations Related to Multiple Analysis Datasets
+
+## Core Variables
+
+Core variables are those that are represented across all/most analysis datasets.
+
+{variable description table}
+
+## Treatment Variables
+
+- ARM versus TRTxxP
+Are the values of ARM equivalent in meaning to values of TRTxxP?
+<Yes/No> (insert additional text hereor a mapping tableor a figure)
+
+- ACTARM versus TRTxxA
+If TRTxxA is used, then are the values of ACTARM equivalent in meaning to values of TRTxxA?
+<Yes/No> (insert additional text hereor a mapping tableor a figure)
+
+- Use of ADaM Treatment Variables in Analysis
+Are both planned and actual treatment variables used in analysis?
+<Yes/No> (insert additional texthereor a mapping tableor a figure)
+
+- Use of ADaMTreatment Grouping Variables in Analysis
+Are both planned and actual treatment grouping variables used in analysis?
+<Yes/No> (insert additional text here or a mapping tableor a figure)
+
+## Subject Issues that Require Special Analysis Rules
+
+(insert your text hereor indicate that there were no subject issues to be documented)
+
+## Use of Visit Windowing, Unscheduled Visits, and Record Selection
+
+- Was windowing used in one or more analysis datasets?
+<Yes/No> (insert additional texthere)
+
+- Were unscheduled visits used in any analyses?
+<Yes/No> (insert additional texthere)
+
+- Additional Content of Interest
+<SeeADRG Completion Guidelines foradditional content of interest, and includetext here or remove this text >.
+
+## Imputation/Derivation Methods
+
+- If date imputation was performed, were there rules that were used in multiple analysis datasets?
+<Yes/No> (insert additional texthere)
+
+- Additional Content of Interest
+<SeeADRG Completion Guidelines foradditional content of interest, and includetext here or remove this text >.
+
+# Analysis Data Creation and Processing Issues
+
+## Split Datasets
+
+(insert your textortablehereor indicate there are no split datasets)
+
+## Data Dependencies
+
+{data dependency table}
+
+## Intermediate Datasets
+
+(insert your text hereor indicate there are no intermediate datasets)
+
+# Analysis Dataset Descriptions
+
+## Overview
+
+- Are data for screen failures, including data for run-in screening (for example, SDTM values of ARMCD=’SCRNFAIL’, or ‘NOTASSGN’) included in ADaM datasets?
+<Yes/No> <insert additional text here>
+
+- Are data taken from an ongoing study?
+<Yes/No> <insert additional text here>
+- Do the analysis datasets support all protocol-and statistical analysis plan-specified objectives?
+<Yes/No>(insert additional text here)
+- Include all objectives listed in the protocol or SAP which are not supported in the analysis datasets and the reason for their absence.
+
+Additional Content of Interest
+
+( See ADRG Completion Guidelines for additional content of interest, and includetext here or remove this text).
+
+## Analysis Datasets
+
+| Dataset
+Dataset Label | Class | Efficacy | Safety | Baseline or other subject characteristics | PK/PD | Primary Objective | Structure |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Subject Level Analysis Dataset | ADSL |  |  | X |  |  | One observation per subject |
+|  |  |  |  |  |  |  |  |
+
+### 5.2.1ADSL – Subject Level Analysis Dataset
+
+(insert your text here)
+
+(insert date imputation rules if applicable)
+
+### 5.2.xDataset – Dataset Label
+
+(A new section is required for each dataset that is hyperlinked in the inventory table.  This section should be copied to create a new section for each dataset.  The text in the section header above must be edited to match the dataset name and label.
+
+**Note that the header numbering in this section is NOT automatic.  The header number for each dataset must be manually edited.**)
+
+# Data Conformance Summary
+
+## Conformance Inputs
+
+Specify the software name and version for the analysis datasets
+
+(Text here)
+
+Specify the version of the validation rules (i.e. CDISC, FDA) for the analysis datasets
+
+(Text here)
+
+Specify the software name and version for the define.xml
+
+(Text here)
+
+Specify the version of the validation rules (i.e. CDISC, FDA) for the define.xml
+
+(Text here)
+
+Provide any additionalcompliance evaluation information:
+
+(Text here)
+
+## Issues Summary
+
+(insert your text here and/or use following table)
+
+| Dataset | Diagnostic Message | Severity | Count | Explanation |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
+
+# Submission of Programs
+
+All programs for analysis datasets and primary and secondary efficacy resultsaresubmitted.   They were all createdon a <text here> platformusing<version>.The internal reference date used to create dates in ADaM datasets is<date>.
+
+## ADaM Programs
+
+| Program Name | Output | Macro Used |
+| --- | --- | --- |
+|  |  |  |
+
+## Analysis Output Programs
+
+{analysis output table}
+
+## Open source R packages
+
+{r package table}
+
+# Appendix
+
+(insert text here or remove this section)
+
+| Legacy Data Conversion Plan and Report Appendix |
+| --- |
+
+# Purpose
+
+The purpose of this appendix is to document thetraceability ofkeyoutput analysis results with ADaM when the analysis results were generated using a legacy process.
+
+Because of transformations required during ADaM conversion, some of the terms, categories and data formats used in the tabulation data have been translated into CDISC standard formats in the ADaM data.  This appendix identifies differences between the legacyanalysisand ADaM data, and explains how ADaM represents the equivalent data.
+
+# Conversion Data Flow
+
+The legacy data was converted to SDTM/ADaMas described in the following data flow diagram.
+
+**Rationale:**
+
+(Text here)
+
+# Converted Data Summary
+
+## Issues Encountered and Resolved
+
+- (Text and/or table here)
+- (Text and/or table here)
+# Traceability Data Flow
+
+The legacy data traceability from collection to submission is described in the following data flow diagram.
+
+# Outstanding Issues
+
+- (Text and/or table here)
+- (Text and/or table here)
+
+

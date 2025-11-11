@@ -1,0 +1,35 @@
+{
+  "sdtm_medra_version": {
+    "define": "inputs/define.xml",
+    "out": "outputs/standards_from_define.csv"
+  },
+  "protocol_retrieve": {
+    "protocol": "inputs/protocol_cdiscpilot01.pdf",
+    "out": "outputs/protocol_description.md",
+    "model": "gpt-4o-mini",
+    "max_pages": null
+  },
+  "var_filter": {
+    "folder": "inputs/r_scripts",
+    "out": "outputs/output_var_filter_folder.csv",
+    "model": "gpt-4o-mini"
+  },
+  "adam_info": {
+    "spec": "inputs/adam-pilot-5.xlsx",
+    "out": "outputs/var_descriptions.csv",
+    "deps_out": "outputs/dataset_dependencies.csv"
+  },
+  "renv_to_table": {
+    "renv": "inputs/renv.lock",
+    "out": "outputs/r_pkg_versions.csv"
+  },
+  "pkg_describer": {
+    "out": "outputs/pkg_descriptions.csv",
+    "model": "gpt-4o-mini"
+  },
+  "template": {
+    "path": "adrg_doc/adrg-template.qmd",
+    "output": "outputs/adrg-filled.qmd",
+    "html_output": "outputs/adrg-filled.html"
+  }
+}

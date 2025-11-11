@@ -1,0 +1,34 @@
+{
+  "sdtm_medra_version": {
+    "define": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/define.xml",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/standards_from_define.csv"
+  },
+  "protocol_retrieve": {
+    "protocol": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/protocol_cdiscpilot01.pdf",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/protocol_description.md",
+    "model": "gpt-4o-mini",
+    "max_pages": null
+  },
+  "var_filter": {
+    "folder": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/r_scripts",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/output_var_filter_folder.csv",
+    "model": "gpt-4o-mini"
+  },
+  "adam_info": {
+    "spec": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/adam-pilot-5.xlsx",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/var_descriptions.csv",
+    "deps_out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/dataset_dependencies.csv"
+  },
+  "renv_to_table": {
+    "renv": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/renv.lock",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/r_pkg_versions.csv"
+  },
+  "pkg_describer": {
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/pkg_descriptions.csv",
+    "model": "gpt-4o-mini"
+  },
+  "template": {
+    "path": "/Users/lengn/Documents/GitHub/adrg_llm_utils/adrg_doc/adrg-template.md",
+    "output": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/adrg-filled.md"
+  }
+}

@@ -10,13 +10,16 @@ These utility modules provide the scaffolding for LLM-automated ADRG generation.
 - `pandas`
 - `langchain_openai` and `langchain_core` (for LLM-based modules)
 - `pdfplumber` (for protocol PDF extraction)
+- `markdown` (or `markdown2`) for optional HTML rendering of the filled ADRG
+- Quarto CLI (optional; required if you plan to render the filled ADRG to PDF or HTML)
 - R (for `pkg_describer` module) with packages: `optparse`, `btw`, `ellmer`, `tools`
 
 Install required Python packages:
 
 ```bash
-pip install pandas langchain-openai langchain-core pdfplumber openpyxl
+pip install pandas langchain-openai langchain-core pdfplumber openpyxl markdown
 ```
+If you prefer `markdown2`, install it instead of `markdown`.
 
 For the `pkg_describer` module, install required R packages:
 
@@ -25,6 +28,12 @@ install.packages(c("optparse", "btw", "ellmer", "tools"))
 ```
 
 Note: Package names may differ depending on your environment. Adjust as needed.
+
+Install the Quarto CLI by following the [official instructions](https://quarto.org/docs/get-started/) or, on macOS, by running:
+
+```bash
+brew install quarto
+```
 
 ## Configuration
 
@@ -55,12 +64,12 @@ For the `pkg_describer` module, you can also set `MODEL_NAME` as an environment 
 
 Analyze a folder of `.r` files:
 ```bash
-python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv
+python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv
 ```
 
 Analyze a single `.r` file:
 ```bash
-python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv
+python -m var_filter.main --file inputs/r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv
 ```
 
 **Options:**
@@ -74,7 +83,7 @@ python -m var_filter.main --file r_scripts/tlf-demographic.r --out outputs/outpu
 
 **Example:**
 ```bash
-python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
+python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
 ```
 
 ---
@@ -209,7 +218,7 @@ Rscript pkg_describer/main.R --input outputs/r_pkg_versions.csv --output outputs
 
 **Usage:**
 ```bash
-python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/standards_from_define.csv
 ```
 
 **Options:**
@@ -223,7 +232,7 @@ python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_
 
 **Example:**
 ```bash
-python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/standards_from_define.csv
 ```
 
 ---
@@ -282,15 +291,31 @@ A typical workflow might involve:
 
 4. **Extract SDTM/MedDRA versions:**
    ```bash
-   python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/sdtm_medra_info.csv
+   python -m sdtm_medra_version.main --define inputs/define.xml --out outputs/standards_from_define.csv
    ```
 
 5. **Analyze R scripts:**
    ```bash
-   python -m var_filter.main --folder ./r_scripts --out outputs/output_var_filter_folder.csv
+   python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv
    ```
 
 6. **Extract variable descriptions and dataset dependencies:**
    ```bash
    python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+   ```
+
+### Using `generate_adrg.py`
+
+Once you have run the individual modules (or if you prefer to orchestrate them in one shot), you can create a filled ADRG document with `generate_adrg/main.py`:
+
+1. Review or create a pipeline configuration JSON (see `adrg_doc/example_pipeline_config.json` for a relative-path example). Ensure it includes the sections `sdtm_medra_version`, `protocol_retrieve`, `var_filter`, `adam_info`, `renv_to_table`, `pkg_describer`, and `template` with appropriate inputs/outputs.
+2. Run the generator:
+   ```bash
+   python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json --skip-sdtm --skip-protocol --skip-var-filter --skip-adam-info --skip-renv --skip-pkg-describer
+   ```
+3. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
+4. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). To render the filled document to PDF (or HTML), use the Quarto CLI. For example:
+
+   ```bash
+   quarto render outputs/adrg-filled.qmd --to pdf
    ```
