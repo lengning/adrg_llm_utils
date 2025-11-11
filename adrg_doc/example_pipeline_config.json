@@ -28,8 +28,8 @@
     "model": "gpt-4o-mini"
   },
   "template": {
-    "path": "adrg_doc/adrg-template.md",
-    "output": "outputs/adrg-filled.md",
+    "path": "adrg_doc/adrg-template.qmd",
+    "output": "outputs/adrg-filled.qmd",
     "html_output": "outputs/adrg-filled.html"
   }
 }

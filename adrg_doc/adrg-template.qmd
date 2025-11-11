@@ -1,9 +1,29 @@
 ---
 title: "Analysis Data Reviewer’s Guide"
-toc: true
-toc-depth: 3
-number-sections: true
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
 ---
+
+```{=html}
+<style>
+table {
+  border-collapse: collapse;
+}
+
+table,
+thead,
+tbody,
+tfoot,
+th,
+td,
+tr {
+  border: 1px solid #000;
+}
+</style>
+```
 
 
 <Sponsor Name>
@@ -125,7 +145,7 @@ Are both planned and actual treatment grouping variables used in analysis?
 
 Additional Content of Interest
 
-( SeeADRG Completion Guidelines foradditional content of interest, and includetext here or remove this text).
+( See ADRG Completion Guidelines for additional content of interest, and includetext here or remove this text).
 
 ## Analysis Datasets
 
@@ -235,3 +255,5 @@ The legacy data traceability from collection to submission is described in the f
 
 - (Text and/or table here)
 - (Text and/or table here)
+
+

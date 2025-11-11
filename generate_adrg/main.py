@@ -11,7 +11,7 @@ This script orchestrates the following steps:
 4. Execute ``var_filter.main`` to analyse R programs, ``adam_info.main`` to
    summarise ADaM variables and dataset dependencies, and ``renv_to_table.main`` /
    ``pkg_describer.main`` to document open source R packages.
-5. Inject the outputs of those steps into ``adrg-template.md`` by replacing the
+5. Inject the outputs of those steps into ``adrg-template.qmd`` by replacing the
    placeholders ``{sdtm medra version table}``, ``{protocol info md}``,
    ``{analysis output table}``, ``{variable description table}``,
    ``{data dependency table}``, and ``{r package table}``.
@@ -24,6 +24,7 @@ import argparse
 import csv
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -429,6 +430,51 @@ def wrap_html_document(body_html: str, title: Optional[str] = None) -> str:
     )
 
 
+def render_with_quarto(source_path: Path, html_output_path: Path) -> bool:
+    """Render the provided Quarto file to HTML using the Quarto CLI.
+
+    Returns True if rendering was performed, False if Quarto is unavailable.
+    """
+    quarto_bin = shutil.which("quarto")
+    if not quarto_bin:
+        return False
+
+    ensure_parent(html_output_path)
+
+    argv = [
+        quarto_bin,
+        "render",
+        str(source_path),
+        "--to",
+        "html",
+        "--output",
+        html_output_path.name,
+    ]
+    if html_output_path.parent != source_path.parent:
+        argv.extend(["--output-dir", str(html_output_path.parent)])
+
+    try:
+        subprocess.run(argv, check=True, cwd=source_path.parent)
+    except subprocess.CalledProcessError as exc:
+        cmd = " ".join(map(str, exc.cmd)) if exc.cmd else "<quarto>"
+        raise PipelineError(
+            f"Quarto rendering failed with exit code {exc.returncode}: {cmd}"
+        ) from exc
+
+    if html_output_path.exists():
+        return True
+
+    default_html = source_path.with_suffix(".html")
+    if default_html.exists():
+        default_html.replace(html_output_path)
+        return True
+
+    raise PipelineError(
+        "Quarto rendering completed but HTML output was not produced at the expected "
+        f"location: {html_output_path}"
+    )
+
+
 def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate a filled ADRG document using configured utilities."
@@ -594,7 +640,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         protocol_number=protocol_number,
     )
 
-    output_path = resolve_path(template_cfg.get("output", "adrg-filled.md"))
+    output_path = resolve_path(template_cfg.get("output", "adrg-filled.qmd"))
     ensure_parent(output_path)
     output_path.write_text(filled_text, encoding="utf-8")
     print(f"Filled ADRG document written to: {output_path}")
@@ -607,11 +653,17 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
             html_output_path = output_path.with_suffix(".html")
         else:
             html_output_path = output_path.with_name(f"{output_path.name}.html")
-    ensure_parent(html_output_path)
-    html_body = markdown_to_html(filled_text)
-    html_document = wrap_html_document(html_body, title=protocol_number)
-    html_output_path.write_text(html_document, encoding="utf-8")
-    print(f"Rendered ADRG HTML document written to: {html_output_path}")
+    rendered_with_quarto = render_with_quarto(output_path, html_output_path)
+    if not rendered_with_quarto:
+        ensure_parent(html_output_path)
+        html_body = markdown_to_html(filled_text)
+        html_document = wrap_html_document(html_body, title=protocol_number)
+        html_output_path.write_text(html_document, encoding="utf-8")
+        print(f"Rendered ADRG HTML document written to: {html_output_path}")
+    else:
+        print(
+            f"Rendered ADRG HTML document written to: {html_output_path} (via Quarto)"
+        )
 
 
 if __name__ == "__main__":
