@@ -388,6 +388,56 @@ def extract_protocol_number(protocol_md: str) -> Optional[str]:
     return value or None
 
 
+def run_question_filler(
+    config_path: Path,
+    template_path: Path,
+    output_path: Path,
+    model: str = "gpt-4o-mini"
+) -> Path:
+    """
+    Run the adrg_question_filler to fill yes/no questions in the template.
+
+    Args:
+        config_path: Path to pipeline configuration JSON
+        template_path: Path to template file to fill
+        output_path: Path for output filled template
+        model: LLM model to use for question answering
+
+    Returns:
+        Path to filled template
+    """
+    script_path = ROOT_DIR / "adrg_question_filler" / "main.py"
+    if not script_path.exists():
+        raise PipelineError(
+            f"Question filler script not found: {script_path}"
+        )
+
+    ensure_parent(output_path)
+
+    argv = [
+        sys.executable,
+        str(script_path),
+        "--config",
+        str(config_path),
+        "--template",
+        str(template_path),
+        "--out",
+        str(output_path),
+        "--model",
+        str(model),
+    ]
+
+    run_command(argv)
+
+    if not output_path.exists():
+        raise PipelineError(
+            "Expected filled template missing after question filler execution: "
+            f"{output_path}"
+        )
+
+    return output_path
+
+
 def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate a filled ADRG document using configured utilities."
@@ -427,6 +477,16 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
         "--skip-pkg-describer",
         action="store_true",
         help="Skip running pkg_describer (use existing package description CSV)."
+    )
+    parser.add_argument(
+        "--fill-questions",
+        action="store_true",
+        help="Run adrg_question_filler to fill yes/no questions in template."
+    )
+    parser.add_argument(
+        "--question-model",
+        default="gpt-4o-mini",
+        help="LLM model to use for question answering (default: gpt-4o-mini)."
     )
     return parser.parse_args(list(argv) if argv is not None else None)
 
@@ -557,6 +617,17 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     ensure_parent(output_path)
     output_path.write_text(filled_text, encoding="utf-8")
     print(f"Filled ADRG document written to: {output_path}")
+
+    # Optionally run question filler to fill yes/no questions
+    if args.fill_questions:
+        print("\nRunning question filler to fill yes/no questions...")
+        filled_question_path = run_question_filler(
+            config_path=args.config,
+            template_path=output_path,  # Use the already filled template as input
+            output_path=output_path,  # Overwrite the same file
+            model=args.question_model
+        )
+        print(f"Yes/no questions filled in: {filled_question_path}")
 
 
 if __name__ == "__main__":

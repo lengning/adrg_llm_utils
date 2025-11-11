@@ -8,14 +8,14 @@ Protocol Title: Safety and Efficacy of the Xanomeline Transdermal Therapeutic Sy
 
 Protocol Versions:
 
-The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Changes to the protocol-specified analyses included omission of secondary or sensitivity analyses, omission of some efficacy endpoints, omission of some safety endpoints, and the inclusion of additional types of analyses.
+The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Other changes in the study conduct are not described in this study report due to the nature of this CDISC Pilot Project.
 
 
 ## Protocol Designin Relation to ADaM Concepts
 
 ### Protocol Objective
 
-The primary objectives of this study were to determine if there is a statistically significant relationship between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose (0, 50 cm2 [54 mg], and 75 cm2 [81 mg]), and to document the safety profile of the xanomeline TTS.
+The primary objectives of this study were to determine if there is a statistically significant relationship between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose, and to document the safety profile of the xanomeline TTS.
 
 ### Protocol Methodology
 
@@ -27,5 +27,5 @@ This was a prospective, randomized, multi-center, double-blind, placebo-controll
 
 ### Study Design Schema
 
-The study design included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy and safety evaluations.
+The study included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy and safety evaluations.
 

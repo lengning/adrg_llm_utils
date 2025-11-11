@@ -10,7 +10,7 @@
     "max_pages": null
   },
   "var_filter": {
-    "folder": "inputs/r_scripts",
+    "folder": "inputs/tlf_scripts",
     "out": "outputs/output_var_filter_folder.csv",
     "model": "gpt-4o-mini"
   },

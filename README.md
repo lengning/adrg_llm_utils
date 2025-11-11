@@ -64,12 +64,12 @@ For the `pkg_describer` module, you can also set `MODEL_NAME` as an environment 
 
 Analyze a folder of `.r` files:
 ```bash
-python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv
+python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_filter_folder.csv
 ```
 
 Analyze a single `.r` file:
 ```bash
-python -m var_filter.main --file inputs/r_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv
+python -m var_filter.main --file inputs/tlf_scripts/tlf-demographic.r --out outputs/output_var_filter_file.csv
 ```
 
 **Options:**
@@ -83,7 +83,7 @@ python -m var_filter.main --file inputs/r_scripts/tlf-demographic.r --out output
 
 **Example:**
 ```bash
-python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
+python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_filter_folder.csv --model gpt-4o-mini --print
 ```
 
 ---
@@ -270,6 +270,82 @@ python -m protocol_retrieve.main --protocol inputs/protocol_cdiscpilot01.pdf --o
 
 ---
 
+### adrg_question_filler
+
+**Description:** Intelligently fills in yes/no questions in the ADRG template by analyzing pipeline data files and using LLM to answer questions automatically.
+
+**What it does:**
+- Automatically detects all `<Yes/No>` placeholders in the ADRG template
+- Analyzes multiple data sources from both **input** and **output** files:
+  - **Output files**: Protocol descriptions, variable descriptions, dataset dependencies, analysis program details, R packages
+  - **Input files**: define.xml (metadata), ADaM spec XLSX (detailed specifications), renv.lock (R environment), R scripts (sample code)
+- Uses LLM to intelligently interpret data and answer yes/no questions
+- Skips questions that cannot be answered automatically (keeps `<Yes/No>` placeholder)
+
+**Usage:**
+
+Basic usage:
+```bash
+python adrg_question_filler/main.py
+```
+
+Custom configuration:
+```bash
+python adrg_question_filler/main.py \
+  --config path/to/config.json \
+  --template path/to/template.qmd \
+  --out path/to/output.qmd \
+  --model gpt-4o
+```
+
+**Options:**
+- `--config PATH`: Path to pipeline configuration JSON (default: `adrg_doc/example_pipeline_config.json`)
+- `--template PATH`: Path to ADRG template file (default: `adrg_doc/adrg-template.qmd`)
+- `--out PATH`: Output path for filled template (default: `outputs/adrg-filled.qmd`)
+- `--model NAME`: OpenAI model to use (default: `gpt-4o-mini`)
+
+**Questions typically answered:**
+- Treatment variable equivalence (ARM vs TRTxxP, ACTARM vs TRTxxA)
+- Use of planned vs actual treatment variables
+- Treatment grouping variables usage
+- Windowing usage (if data available)
+- Unscheduled visits (if data available)
+- Date imputation rules (if documented)
+- Screen failure data inclusion (if data available)
+- Ongoing study status (if documented in protocol)
+- Protocol objective support (if analysis complete)
+
+**Output:** Filled ADRG template with `<Yes/No>` markers replaced by actual answers and explanations. The output file overwrites or is written to the path specified by `--out`.
+
+**Example:**
+
+Input template:
+```markdown
+- ARM versus TRTxxP
+Are the values of ARM equivalent in meaning to values of TRTxxP?
+<Yes/No> (insert additional text here)
+```
+
+Filled output:
+```markdown
+- ARM versus TRTxxP
+Are the values of ARM equivalent in meaning to values of TRTxxP?
+**Yes.** In this study, the treatment groups include placebo, xanomeline low dose,
+and xanomeline high dose, which are reflected in both ARM and TRTxxP variables.
+```
+
+**Notes:**
+- Run after the main pipeline to ensure all data files are available
+- **Enhanced context**: Reads both input files (XML, XLSX, JSON, R scripts) and output files for comprehensive data analysis
+- Questions that cannot be answered automatically will retain their `<Yes/No>` placeholder
+- Answers are formatted as **bold** (e.g., `**Yes.**` or `**No.**`) followed by explanation text
+- Review LLM-generated answers before finalizing the document
+- For better accuracy, consider using GPT-4 with `--model gpt-4o`
+- When integrated with `generate_adrg`, the output file is overwritten in place
+- **Typical success rate**: 5-7 out of 10 questions answered automatically (depending on data availability)
+
+---
+
 ## Workflow Example
 
 A typical workflow might involve:
@@ -296,7 +372,7 @@ A typical workflow might involve:
 
 5. **Analyze R scripts:**
    ```bash
-   python -m var_filter.main --folder inputs/r_scripts --out outputs/output_var_filter_folder.csv
+   python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_filter_folder.csv
    ```
 
 6. **Extract variable descriptions and dataset dependencies:**
@@ -309,13 +385,33 @@ A typical workflow might involve:
 Once you have run the individual modules (or if you prefer to orchestrate them in one shot), you can create a filled ADRG document with `generate_adrg/main.py`:
 
 1. Review or create a pipeline configuration JSON (see `adrg_doc/example_pipeline_config.json` for a relative-path example). Ensure it includes the sections `sdtm_medra_version`, `protocol_retrieve`, `var_filter`, `adam_info`, `renv_to_table`, `pkg_describer`, and `template` with appropriate inputs/outputs.
+
 2. Run the generator:
    ```bash
-   python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json --skip-sdtm --skip-protocol --skip-var-filter --skip-adam-info --skip-renv --skip-pkg-describer
+   python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json
    ```
-3. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
-4. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). To render the filled document to PDF (or HTML), use the Quarto CLI. For example:
 
+3. To include automatic yes/no question filling, add the `--fill-questions` flag:
+   ```bash
+   python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json --fill-questions
+   ```
+
+   Options for question filling:
+   - `--fill-questions`: Enable yes/no question filling
+   - `--question-model MODEL`: Specify LLM model for questions (default: gpt-4o-mini)
+
+4. If you already have output files from previous runs, skip steps using flags:
+   ```bash
+   python generate_adrg/main.py --config adrg_doc/example_pipeline_config.json \
+     --skip-sdtm --skip-protocol --skip-var-filter --skip-adam-info \
+     --skip-renv --skip-pkg-describer --fill-questions
+   ```
+
+5. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
+
+6. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). If `--fill-questions` is specified, the yes/no questions are filled in the same file.
+
+7. To render the filled document to PDF (or HTML), use the Quarto CLI:
    ```bash
    quarto render outputs/adrg-filled.qmd --to pdf
    ```
