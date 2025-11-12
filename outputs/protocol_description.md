@@ -8,7 +8,7 @@ Protocol Title: Safety and Efficacy of the Xanomeline Transdermal Therapeutic Sy
 
 Protocol Versions:
 
-The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Other changes in the study conduct are not described in this study report due to the nature of this CDISC Pilot Project.
+The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Changes to the protocol-specified analyses included omission of secondary or sensitivity analyses, omission of some efficacy endpoints, omission of some safety endpoints, and the inclusion of additional types of analyses.
 
 
 ## Protocol Designin Relation to ADaM Concepts
@@ -27,5 +27,5 @@ This was a prospective, randomized, multi-center, double-blind, placebo-controll
 
 ### Study Design Schema
 
-The study included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy and safety evaluations.
+The study design included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy and safety evaluations.
 

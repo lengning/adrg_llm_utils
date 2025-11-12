@@ -10,10 +10,9 @@ editor: visual
 ---
 
 
+Sponsor Name
 
-<Sponsor Name>
-
-Study <Protocol Number>
+Study Protocol Number
 
 ADRG Template Version ccyy-mm-dd
 
@@ -138,19 +137,15 @@ Additional Content of Interest
 
 ## Analysis Datasets
 
-| Dataset
-Dataset Label | Class | Efficacy | Safety | Baseline or other subject characteristics | PK/PD | Primary Objective | Structure |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Subject Level Analysis Dataset | ADSL |  |  | X |  |  | One observation per subject |
-|  |  |  |  |  |  |  |  |
+{dataset inventory table}
 
-### 5.2.1ADSL – Subject Level Analysis Dataset
+### ADSL – Subject Level Analysis Dataset
 
 (insert your text here)
 
 (insert date imputation rules if applicable)
 
-### 5.2.xDataset – Dataset Label
+### Dataset – Dataset Label
 
 (A new section is required for each dataset that is hyperlinked in the inventory table.  This section should be copied to create a new section for each dataset.  The text in the section header above must be edited to match the dataset name and label.
 
@@ -196,9 +191,7 @@ All programs for analysis datasets and primary and secondary efficacy resultsare
 
 ## ADaM Programs
 
-| Program Name | Output | Macro Used |
-| --- | --- | --- |
-|  |  |  |
+{adam programs table}
 
 ## Analysis Output Programs
 

@@ -17,7 +17,12 @@
   "adam_info": {
     "spec": "inputs/adam-pilot-5.xlsx",
     "out": "outputs/var_descriptions.csv",
-    "deps_out": "outputs/dataset_dependencies.csv"
+    "deps_out": "outputs/dataset_dependencies.csv",
+    "inventory_out": "outputs/dataset_inventory.csv"
+  },
+  "adam_scripts_analyzer": {
+    "scripts_dir": "inputs/adam_scripts",
+    "out": "outputs/adam_programs.csv"
   },
   "renv_to_table": {
     "renv": "inputs/renv.lock",

@@ -10,7 +10,6 @@ editor: visual
 ---
 
 
-
 <Sponsor Name>
 
 Study CDISCPILOT01
@@ -64,14 +63,14 @@ Protocol Title: Safety and Efficacy of the Xanomeline Transdermal Therapeutic Sy
 
 Protocol Versions:
 
-The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Other changes in the study conduct are not described in this study report due to the nature of this CDISC Pilot Project.
+The protocol was amended 3 times. For the first 2 amendments, changes were made to the ambulatory ECG assessments. Changes to the protocol-specified analyses are described in the statistical analysis plan (Appendix 9).
 
 
 ## Protocol Designin Relation to ADaM Concepts
 
 ### Protocol Objective
 
-The primary objectives of this study were to determine if there is a statistically significant relationship between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose, and to document the safety profile of the xanomeline TTS.
+The primary objectives of this study were to determine if there is a statistically significant relationship between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose (0, 50 cm2 [54 mg], and 75 cm2 [81 mg]). To document the safety profile of the xanomeline TTS.
 
 ### Protocol Methodology
 
@@ -83,7 +82,7 @@ This was a prospective, randomized, multi-center, double-blind, placebo-controll
 
 ### Study Design Schema
 
-The study included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy and safety evaluations.
+The study design included three treatment groups: placebo, xanomeline low dose (54 mg), and xanomeline high dose (81 mg). The treatment duration was 26 weeks, with assessments at various time points including Weeks 8, 16, and 24 for efficacy endpoints.
 
 # Analysis Considerations Related to Multiple Analysis Datasets
 
@@ -116,7 +115,7 @@ Core variables are those that are represented across all/most analysis datasets.
 
 - ARM versus TRTxxP: 
 Are the values of ARM equivalent in meaning to values of TRTxxP?
-**Yes.** The equivalence of ARM and TRTxxP is standard in clinical trial datasets, where ARM provides a descriptive label and TRTxxP provides a numeric representation of the same treatment groups.
+**Yes.** The study design indicates that subjects were randomized into these treatment groups, confirming the equivalence of ARM and TRTxxP in this context.
 
 - ACTARM versus TRTxxA: 
 If TRTxxA is used, then are the values of ACTARM equivalent in meaning to values of TRTxxA?
@@ -124,7 +123,7 @@ If TRTxxA is used, then are the values of ACTARM equivalent in meaning to values
 
 - Use of ADaM Treatment Variables in Analysis: 
 Are both planned and actual treatment variables used in analysis?
-**Yes.** This dual usage allows for a comprehensive analysis of treatment effects based on both the intended and actual treatment assignments.
+**Yes.** This dual use of treatment variables allows for a comprehensive understanding of treatment effects in the study.
 
 - Use of ADaMTreatment Grouping Variables in Analysis: 
 Are both planned and actual treatment grouping variables used in analysis?
@@ -178,7 +177,7 @@ Are both planned and actual treatment grouping variables used in analysis?
 ## Overview
 
 - Are data for screen failures, including data for run-in screening (for example, SDTM values of ARMCD=’SCRNFAIL’, or ‘NOTASSGN’) included in ADaM datasets?
-**No.** This aligns with standard practices in clinical trial data analysis where screen failures are typically excluded from analysis datasets to focus on subjects who were randomized and received treatment.
+**No.** This exclusion is standard practice in clinical trial analysis to focus on subjects who were randomized and received treatment.
 
 - Are data taken from an ongoing study?
 <Yes/No>
@@ -197,16 +196,19 @@ Additional Content of Interest
 | Dataset
 Dataset Label | Class | Efficacy | Safety | Baseline or other subject characteristics | PK/PD | Primary Objective | Structure |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Subject Level Analysis Dataset | ADSL |  |  | X |  |  | One observation per subject |
-|  |  |  |  |  |  |  |  |
+| ADAS-Cog Analysis \| ADADAS | BASIC DATA STRUCTURE | X |  |  |  |  | one record per subject per parameter per analysis visit per analysis date |
+| Adverse Events Analysis Dataset \| ADAE | ADAM OTHER |  | X |  |  |  | one record per subject per adverse event |
+| Analysis Dataset Lab Blood Chemistry \| ADLBC | BASIC DATA STRUCTURE | X | X |  |  |  | one record per subject per parameter per analysis visit |
+| Subject-Level Analysis Dataset \| ADSL | SUBJECT LEVEL ANALYSIS DATASET |  |  | X |  |  | one record per subject. Screen Failures are excluded. |
+| AE Time To 1st Derm. Event Analysis \| ADTTE | BASIC DATA STRUCTURE |  | X |  |  |  | one record per subject per parameter |
 
-### 5.2.1ADSL – Subject Level Analysis Dataset
+### ADSL – Subject Level Analysis Dataset
 
 (insert your text here)
 
 (insert date imputation rules if applicable)
 
-### 5.2.xDataset – Dataset Label
+### Dataset – Dataset Label
 
 (A new section is required for each dataset that is hyperlinked in the inventory table.  This section should be copied to create a new section for each dataset.  The text in the section header above must be edited to match the dataset name and label.
 
@@ -252,16 +254,20 @@ All programs for analysis datasets and primary and secondary efficacy resultsare
 
 ## ADaM Programs
 
-| Program Name | Output | Macro Used |
+| Program Name | Output | R functions Used |
 | --- | --- | --- |
-|  |  |  |
+| adadas | adadas.rds | abs, attr, build_from_derived, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_vars_dt, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, filter, if_else, is.na, ... |
+| adae | adae.rds | attr, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_vars_dtm, derive_vars_dtm_to_dt, derive_vars_duration, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, ifelse, is.na, library, list, list2env, map, mutate, ... |
+| adlbc | adlbc.rds | AVAL, abs, arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_var_chg, derive_vars_dt, derive_vars_dy, derive_vars_merged, desc, drop_unspec_vars, exprs, ... |
+| adsl | adsl.rds | arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_cat_var, create_var_from_codelist, derive_var_trtdurd, derive_vars_dt, derive_vars_duration, derive_vars_merged, distinct, drop_unspec_vars, exprs, file.path, filter, ... |
+| adtte | adtte.rds | as.Date, as.numeric, attr, c, case_when, censor_source, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_param_tte, derive_vars_dt, derive_vars_duration, derive_vars_merged, drop_unspec_vars, event, event_source, exprs, file.path, library, ... |
 
 ## Analysis Output Programs
 
 | r_file | outputs | filters | variables |
 | --- | --- | --- | --- |
 | tlf-demographic.r | tlf-demographic-pilot5.out | ADSL.STUDYID == 'CDISCPILOT01'; ADSL.ITTFL == 'Y' | ADSL.AGE; ADSL.AGEGR1; ADSL.RACE; ADSL.HEIGHTBL; ADSL.WEIGHTBL; ADSL.BMIBL; ADSL.MMSETOT |
-| tlf-efficacy.r | tlf-efficacy-pilot5.rtf | ADLB.TRTPN IN (0, 81); ADLB.PARAMCD == 'GLUC'; ADLB.AVISITN IS NOT NULL; ADLB.AVISITN == 20; ADLB.AVISITN == 0; ADLB.AVISITN == 20 AND ADLB.CHG IS NOT NULL AND ADLB.BASE IS NOT NULL | ADSL.STUDYID; ADSL.USUBJID; ADLB.BASE; ADLB.TRTPN; ADLB.PARAMCD; ADLB.AVISITN; ADLB.CHG; ADLB.AVAL |
+| tlf-efficacy.r | tlf-efficacy-pilot5.rtf | ADSL.ITTFL == 'Y'; ADLB.TRTPN %in% c(0, 81); ADLB.PARAMCD == 'GLUC'; ADLB.!is.na(AVISITN); ADLB1.AVISITN == 20; ADLB1.!is.na(CHG); ADLB1.!is.na(BASE); ADLB1.AVISITN == 0 | ADSL.STUDYID; ADSL.USUBJID; ADLB.BASE; ADLB.TRTPN; ADLB.PARAMCD; ADLB.AVISITN; ADLB.CHG; ADLB.AVAL |
 | tlf-kmplot.r | tlf-kmplot-pilot5.pdf | ADSL.SAFFL == 'Y'; ADSL.STUDYID == 'CDISCPILOT01'; ADTEE.PARAMCD == 'TTDE'; ADTEE.STUDYID == 'CDISCPILOT01' | ADSL.STUDYID; ADSL.USUBJID; ADSL.TRT01A; ADTE.PARAMCD; ADTE.AVAL; ADTE.CNSR; ADTE.PARAM |
 | tlf-primary.r | tlf-primary-pilot5.rtf | ADAS.EFFFL == 'Y'; ADAS.ITTFL == 'Y'; ADAS.PARAMCD == 'ACTOT'; ADAS.ANL01FL == 'Y'; ADSL.EFFFL == 'Y'; ADSL.ITTFL == 'Y' | ADAS.AVAL; ADAS.CHG |
 
@@ -269,114 +275,114 @@ All programs for analysis datasets and primary and secondary efficacy resultsare
 
 | Package | Version | Description |
 | --- | --- | --- |
-| admiral | 1.3.0 | This R package provides tools for creating and managing Clinical Data Interchange Standards Consortium (CDISC) compliant Analysis Data Model (ADaM) datasets, essential for submitting New Drug or Biologics License Applications to the FDA. |
-| admiraldev | 1.3.1 | The package provides utility functions for checking data, variables, and conditions in the 'admiral' framework, along with tools to assist developers in maintaining documentation and testing for 'admiral' and its extension packages. |
-| assertthat | 0.2.1 | This package extends the functionality of `stopifnot()` by allowing users to declare pre- and post-conditions for their code, while providing informative error messages to help identify issues. |
-| backports | 1.5.0 | This package provides re-implemented functions from R version 3.0.0 and later, allowing developers to utilize new features while maintaining compatibility with older R installations through conditional exports. |
-| base64enc | 0.1-3 | This package offers flexible tools for handling base64 encoding in R, providing an enhanced alternative to the deprecated base64 package. |
-| bit | 4.6.0 | This package offers efficient classes and methods for handling boolean and skewed boolean vectors, as well as fast operations for sorting and manipulating integer sets, along with foundational tools for range indexing and data compression. |
-| bit64 | 4.6.0-1 | The 'bit64' package provides support for 64-bit signed integers in R, enabling precise handling of large integer values useful for database keys and exact counting, with specialized methods for coercion and various operations while being compatible with vectors, matrices, arrays, and data frames. |
-| brew | 1.0-10 | This package provides a templating framework that facilitates the integration of text and R code for generating reports, utilizing a syntax akin to popular web templating languages. |
-| broom | 1.0.8 | The Broom package in R simplifies the reporting and visualization of statistical models by providing functions to summarize model components, overall model statistics, and individual observation metrics within tidy tibbles. |
-| cachem | 1.1.0 | This package provides key-value stores that automatically manage memory by pruning objects based on specified size limits or age constraints. |
-| callr | 3.7.6 | This package allows users to execute computations in a separate R process, ensuring that the current R session remains unaffected. |
-| cellranger | 1.1.0 | This package provides helper functions for working with spreadsheets, specifically for handling cell range specifications in the "A1:D10" format. |
-| checkmate | 2.3.2 | This package provides efficient argument checking through tests and assertions, utilizing C for optimal performance and minimal execution time overhead. |
-| cli | 3.6.5 | This package provides a suite of tools for creating visually appealing command line interfaces (CLIs) using semantic elements, customizable themes, and lower-level CLI components, while supporting ANSI colors and text styles. |
+| admiral | 1.3.0 | This R package provides tools for creating Clinical Data Interchange Standards Consortium (CDISC) compliant Analysis Data Model (ADaM) datasets, facilitating the analysis and submission of data for New Drug and Biologics License Applications to the FDA. |
+| admiraldev | 1.3.1 | The package provides utility functions for checking data, variables, and conditions in 'admiral' and its extension packages, while also offering additional tools for documentation, testing, and maintenance. |
+| assertthat | 0.2.1 | This package enhances the functionality of stopifnot() by allowing developers to declare pre- and post-conditions with user-friendly error messages to help users quickly identify any issues in the code. |
+| backports | 1.5.0 | This package provides backports of functions introduced or modified since R version 3.0.0, allowing users to access these features in older R installations while enabling package developers to selectively import these backports. |
+| base64enc | 0.1-3 | This package offers flexible tools for encoding and decoding base64 data, improving upon the features of the now-unmaintained base64 package. |
+| bit | 4.6.0 | This package provides efficient classes and methods for handling boolean and skewed boolean vectors, along with fast integer sorting, set operations, and foundational tools for range indexing and data compression. |
+| bit64 | 4.6.0-1 | The 'bit64' package provides support for 64-bit signed integers in R, enabling precise data handling for large integers, especially for database keys and exact counting operations, while offering methods for coercion and various elementwise and summary functions. |
+| brew | 1.0-10 | This package provides a templating framework that allows for the integration of text and R code to facilitate report generation, using a syntax similar to that of popular web templating engines. |
+| broom | 1.0.8 | The Broom package in R provides tools for summarizing and reporting key statistical information about models, allowing users to easily extract model components, overall model statistics, and individual observation details in tidy data format. |
+| cachem | 1.1.0 | This package provides key-value stores that automatically manage memory by pruning entries based on size constraints or the age of the oldest object to ensure efficient cache management. |
+| callr | 3.7.6 | This package allows users to conduct computations in an isolated R process, ensuring that the main R session remains unaffected. |
+| cellranger | 1.1.0 | This package provides helper functions for working with spreadsheets, specifically for managing the A1:D10 style of cell range specification. |
+| checkmate | 2.3.2 | This package is designed to perform frequent argument checks efficiently, utilizing C to minimize execution time overhead. |
+| cli | 3.6.5 | This package provides a comprehensive toolkit for creating visually appealing command line interfaces (CLIs) using semantic elements, customizable themes, and various lower-level components, while supporting ANSI colors and text styles. |
 | clipr | 0.8.0 | This package provides simple utility functions for reading from and writing to the clipboard across Windows, OS X, and X11 environments. |
-| commonmark | 2.0.0 | This package utilizes the 'cmark' implementation to convert CommonMark markdown text into multiple formats such as HTML and LaTeX, while also providing an XML representation of the markdown parse tree and supporting GitHub Flavored Markdown (GFM) extensions. |
-| cowplot | 1.2.0 | This R package provides tools for creating publication-quality figures with ggplot2, including themes, alignment functions, and annotation capabilities, originally developed for internal use in the Wilke lab. |
-| cpp11 | 0.5.2 | The 'cpp11' package offers a safe and modern C++11 interface to R's C API, enhancing compatibility with R's semantics while supporting features like ALTREP vectors. |
-| crayon | 1.5.3 | The crayon package provides colored terminal output for R, supporting ANSI color codes and allowing for easy combination, nesting, and creation of new styles, but is now superseded by the cli package for new projects. |
-| curl | 6.4.0 | This package provides bindings to 'libcurl' for making fully configurable HTTP/FTP requests, allowing responses to be processed in various ways including memory, disk, or streaming. |
-| datasetjson | 0.3.0 | This package enables the reading, construction, and writing of CDISC Dataset JSON files while ensuring compliance with the associated Dataset JSON schema for clinical data interchange. |
-| desc | 1.4.3 | This package provides tools for reading, writing, creating, and manipulating DESCRIPTION files, specifically designed for packages that handle other packages. |
-| diffdf | 1.1.1 | This package provides functions to compare two data frames, highlighting differences and offering utilities to help diagnose discrepancies. |
-| digest | 0.6.37 | This R package provides a function to create hash digests of assorted R objects using various algorithms, enabling easy comparison of objects and includes functionality for generating hash-based message authentication codes. |
-| dplyr | 1.1.4 | This package provides a fast and consistent tool for efficiently handling data frame-like objects, both in-memory and out-of-memory. |
-| emmeans | 1.11.2 | This package facilitates the calculation of estimated marginal means (EMMs) for various statistical models, allowing users to compute contrasts, visualize results, and explore trends and comparisons of slopes. |
-| estimability | 1.5.1 | This package offers tools for assessing the estimability of linear functions of regression coefficients and includes methods for handling non-estimable cases correctly. |
-| evaluate | 1.0.4 | This package provides parsing and evaluation tools that simplify the recreation of command line behaviors in R. |
-| fansi | 1.0.6 | This package provides R string manipulation functions that accurately handle ANSI text formatting control sequences, ensuring proper text processing and representation. |
-| farver | 2.1.2 | The 'farver' package provides efficient and fast color space conversion and comparison functionalities, implemented in C++, offering improvements over base R's `convertColor` function. |
-| fastmap | 1.2.0 | Fastmap is an R package that provides efficient data structures, such as key-value stores, stacks, and queues, while avoiding memory leakage issues associated with using environments for key-value storage. |
-| forcats | 1.0.0 | This package provides helpers for reordering, modifying, and managing factor levels in R, allowing users to rearrange levels, collapse rare categories, anonymize data, and recode factors efficiently. |
-| formatters | 0.5.11 | This package offers a framework for rendering complex tables into ASCII format, along with various formatters to convert values into display-ready strings. |
-| fs | 1.6.6 | This package provides a cross-platform interface for performing file system operations, leveraging the capabilities of the 'libuv' C library. |
-| generics | 0.1.4 | The `generics` package in R establishes a collection of commonly used S3 generics to minimize package dependencies and conflicts. |
-| ggplot2 | 3.5.2 | `ggplot2` is an R package that enables users to create complex graphics by declaratively mapping data variables to visual aesthetics, following the principles of the Grammar of Graphics. |
-| ggsurvfit | 1.1.0 | This package simplifies the creation of publication-ready survival endpoint figures by providing modular functions that integrate seamlessly with 'ggplot2' for customization and enhancement. |
-| glue | 1.8.0 | This package provides an implementation of interpreted string literals, allowing for easy string interpolation and multi-line string capabilities, inspired by features from Python and Julia. |
-| gtable | 0.3.6 | The 'gtable' package provides tools for creating and manipulating tables of graphical objects ('grobs') in R, allowing users to define grid layouts and easily combine and arrange these objects into complex visual compositions. |
-| haven | 2.5.5 | The package facilitates the import of foreign statistical data formats into R using the embedded 'ReadStat' C library. |
-| highr | 0.11 | This package offers syntax highlighting for R source code, supporting outputs in LaTeX and HTML, and can also highlight other programming languages through the use of the highlight package. |
-| hms | 1.1.3 | This package provides an S3 class for managing and formatting time-of-day values, utilizing the 'difftime' class for accurate time representation. |
-| htmltools | 0.5.8.1 | This package provides tools for generating and outputting HTML content. |
-| huxtable | 5.6.0 | This package creates customizable styled tables for data presentation, allowing export to various formats such as HTML, LaTeX, and Word, while offering features for manipulating cell styles, borders, and number formatting. |
+| commonmark | 2.0.0 | This package utilizes the 'cmark' reference implementation to convert markdown text into multiple formats such as HTML, LaTeX, and groff man, while also providing an XML representation of the markdown parse tree and supporting GFM extensions like tables and strikethrough text. |
+| cowplot | 1.2.0 | This R package enhances 'ggplot2' by providing tools for creating publication-quality figures, including themes, plot alignment, complex arrangements, and easy annotation features. |
+| cpp11 | 0.5.2 | The 'cpp11' package provides a C++11 interface to R's C API that aims to enhance safety, conform to R function semantics, and support ALTREP vectors, making it easier to work with R from C++. |
+| crayon | 1.5.3 | The crayon package provides functionality for colored terminal output in R, supporting ANSI color codes and allowing for easy combination, nesting, and creation of new styles, though it is now superseded by the 'cli' package for new projects. |
+| curl | 6.4.0 | This package provides bindings to 'libcurl' for performing fully configurable HTTP and FTP requests, allowing responses to be processed in various ways, while also suggesting the more user-friendly 'httr2' package for simplified web client tasks. |
+| datasetjson | 0.3.0 | This package facilitates the reading, construction, and writing of CDISC Dataset JSON files while ensuring validation against the Dataset JSON schema. |
+| desc | 1.4.3 | This package provides tools for reading, writing, creating, and manipulating DESCRIPTION files, facilitating the management of R packages. |
+| diffdf | 1.1.1 | This package provides functions to compare two data.frames in R, offering a detailed breakdown of differences and utility functions to help identify the source of discrepancies. |
+| digest | 0.6.37 | The package provides a function 'digest()' for creating hash digests of various R objects using multiple algorithms, along with an 'hmac()' function for generating hash-based message authentication codes, primarily for easy object comparison rather than cryptographic purposes. |
+| dplyr | 1.1.4 | This package provides a fast and consistent functionality for efficiently handling data frame-like objects, whether they're stored in memory or in external storage. |
+| emmeans | 1.11.2 | This package facilitates the computation of estimated marginal means (EMMs) for various types of statistical models, enabling users to conduct contrasts, linear functions of EMMs, and visualize trends and comparisons of slopes. |
+| estimability | 1.5.1 | This package offers tools for assessing the estimability of linear functions of regression coefficients and includes methods for correctly handling non-estimable cases. |
+| evaluate | 1.0.4 | This package provides tools for parsing and evaluating R expressions, facilitating the recreation of command line behavior in R. |
+| fansi | 1.0.6 | This package provides R functions for manipulating strings that properly handle ANSI text formatting control sequences. |
+| farver | 2.1.2 | The 'farver' package enables efficient and fast conversion between different colour spaces and comparisons, enhancing performance over R's built-in colour conversion tools. |
+| fastmap | 1.2.0 | The package provides efficient implementations of various data structures, including a key-value store, stack, and queue, while preventing memory leakage associated with R's global symbol table through a C++-based approach. |
+| forcats | 1.0.0 | This package provides tools for reordering and modifying factor levels in R, including features for repositioning levels, ordering them, reversing, shuffling, collapsing rare levels, anonymizing, and manual recoding. |
+| formatters | 0.5.11 | This package offers a framework for creating and rendering complex tables as ASCII art, along with various formatters to convert values into display-ready strings. |
+| fs | 1.6.6 | This package provides a cross-platform interface for file system operations, utilizing the 'libuv' C library as its foundation. |
+| generics | 0.1.4 | The `generics` package in R provides a set of commonly used S3 generics to simplify the creation of methods and reduce potential package dependencies and conflicts. |
+| ggplot2 | 3.5.2 | `ggplot2` is a powerful R package that enables users to create sophisticated and customizable graphics by declaratively mapping data to visual aesthetics based on the principles of the Grammar of Graphics. |
+| ggsurvfit | 1.1.0 | This package facilitates the creation of publication-ready time-to-event (survival) figures using modular functions that integrate seamlessly with 'ggplot2' for customization and enhancement. |
+| glue | 1.8.0 | This package provides an implementation of interpreted string literals that allows for multiline string formatting, inspired by Python's and Julia's syntax. |
+| gtable | 0.3.6 | The 'gtable' package in R simplifies the creation and manipulation of complex table layouts by defining a grob class that organizes graphical objects (grobs) within a customizable grid structure. |
+| haven | 2.5.5 | This package allows users to import foreign statistical file formats into R using the embedded ReadStat C library. |
+| highr | 0.11 | This package enables syntax highlighting for R source code in LaTeX and HTML formats, with support for other programming languages through the highlight package. |
+| hms | 1.1.3 | This package provides an S3 class designed for storing and formatting time-of-day values, utilizing the capabilities of the 'difftime' class. |
+| htmltools | 0.5.8.1 | This package provides tools for generating and outputting HTML content efficiently. |
+| huxtable | 5.6.0 | This package facilitates the creation of styled tables for data presentation, allowing for seamless export to various formats and easy customization of appearance and layout. |
 | isoband | 0.2.7 | This package provides a fast C++ implementation for generating contour lines and polygons from regularly spaced elevation data grids. |
-| janitor | 2.2.1 | The janitor package in R provides user-friendly functions for cleaning and formatting data frames, generating frequency tables and cross-tabulations, and identifying duplicate records, all while adhering to the tidyverse principles. |
-| jsonlite | 2.0.0 | The 'jsonlite' package in R is a fast and efficient tool for parsing and generating JSON data, specifically designed for statistical applications and web API interactions, while also providing functionality for streaming, validating, and prettifying JSON. |
-| jsonvalidate | 1.5.0 | This package validates JSON data against JSON schemas using the Node.js libraries 'is-my-json-valid' or 'ajv', supporting drafts 04, 06, and 07 of JSON schema. |
-| knitr | 1.50 | This package offers a versatile solution for generating dynamic reports in R by utilizing Literate Programming techniques. |
-| labeling | 0.4.3 | This package offers a variety of algorithms for generating axis labels in graphical representations. |
-| lattice | 0.22-7 | Lattice is a high-level data visualization system in R that focuses on multivariate data, offering both standard and flexible graphics capabilities inspired by Trellis graphics. |
-| lifecycle | 1.0.4 | This package facilitates the management of exported functions by implementing shared conventions, documentation badges, and user-friendly deprecation warnings throughout their life cycle. |
-| lubridate | 1.9.4 | The 'lubridate' package provides fast and user-friendly tools for parsing, manipulating, and performing algebraic operations on date-time and time-span objects in R, with a consistent syntax for easy usage. |
-| magrittr | 2.0.3 | This package introduces a forward-pipe operator, %>%, that allows for the chaining of commands by passing the result of an expression directly into the next function call, offering flexible support for various right-hand side expressions. |
-| MASS | 7.3-65 | This R package provides functions and datasets that support the applications and concepts presented in the book "Modern Applied Statistics with S" by Venables and Ripley. |
-| Matrix | 1.7-3 | This package provides a comprehensive hierarchy of sparse and dense matrix classes, along with efficient methods for matrix operations, leveraging optimized libraries like 'BLAS', 'LAPACK', and 'SuiteSparse'. |
-| memoise | 2.0.1 | This package caches the results of a function, allowing it to return previously computed values when called with the same arguments, thereby improving efficiency. |
-| metacore | 0.2.0 | This package provides an immutable container that holds metadata to enhance programming activities and improve the functionality of other packages within the clinical programming workflow. |
+| janitor | 2.2.1 | The janitor package in R provides user-friendly functions for cleaning data, creating frequency tables, exploring duplicates, and formatting output, all while integrating seamlessly with the tidyverse framework. |
+| jsonlite | 2.0.0 | The 'jsonlite' package in R provides efficient tools for parsing and generating JSON data, making it ideal for statistical applications and web API interactions, while also supporting streaming, validation, and prettification of JSON. |
+| jsonvalidate | 1.5.0 | This package validates JSON data against specified JSON schemas using the Node libraries 'is-my-json-valid' or 'ajv', supporting drafts 04, 06, and 07 of the JSON schema. |
+| knitr | 1.50 | The package provides a versatile tool for dynamically generating reports in R through the use of Literate Programming techniques. |
+| labeling | 0.4.3 | This package offers a variety of algorithms for labeling axes in graphical representations. |
+| lattice | 0.22-7 | Lattice is an advanced graphics package in R designed for creating complex and multi-dimensional data visualizations, heavily inspired by Trellis graphics. |
+| lifecycle | 1.0.4 | This package facilitates the management of exported functions throughout their life cycle by providing shared conventions, documentation badges, and user-friendly deprecation warnings. |
+| lubridate | 1.9.4 | The 'lubridate' package provides a user-friendly interface for parsing, manipulating, and performing algebraic operations on date-time and time-span objects in R. |
+| magrittr | 2.0.3 | This package introduces a forward-pipe operator, %>%, that allows for seamless chaining of commands by forwarding values or results into subsequent function calls or expressions. |
+| MASS | 7.3-65 | The package provides functions and datasets designed to support the textbook "Modern Applied Statistics with S" by Venables and Ripley, facilitating statistical analysis and modeling in R. |
+| Matrix | 1.7-3 | This package provides a comprehensive set of classes and efficient methods for handling various types of sparse and dense matrices, including general, symmetric, triangular, and diagonal matrices with numeric, logical, or pattern entries, leveraging underlying libraries such as 'BLAS', 'LAPACK', and 'SuiteSparse'. |
+| memoise | 2.0.1 | This package provides a mechanism to cache the results of a function, allowing for faster retrieval of previously computed values when called with the same arguments. |
+| metacore | 0.2.0 | This package creates an immutable container for metadata, enhancing programming efficiency and interoperability within clinical programming workflows. |
 | metatools | 0.1.6 | This package utilizes metadata information from 'metacore' objects to verify and construct associated metadata columns. |
-| mgcv | 1.9-3 | This package provides tools for fitting generalized additive (mixed) models and extensions, facilitating multiple smoothing parameter estimation and Bayesian inference, with support for various smoothers and distributions beyond the exponential family. |
-| mvtnorm | 1.3-3 | This package provides tools for computing multivariate normal and t probabilities, quantiles, random deviates, and densities, along with log-likelihoods and score functions for multivariate Gaussian models and Gaussian copulae, specifically tailored for interval-censored and exact data. |
-| nlme | 3.1-168 | The package enables users to fit and compare both Gaussian linear and nonlinear mixed-effects models for statistical analysis. |
-| numDeriv | 2016.8-1.1 | This package provides methods for calculating accurate numerical first and second order derivatives using techniques such as Richardson's extrapolation and complex step derivatives, along with a simpler difference method for quick calculations and cross-checking. |
-| patchwork | 1.3.1 | The 'patchwork' package enhances the 'ggplot2' API by enabling the flexible composition and arrangement of multiple plots using intuitive mathematical operators. |
-| pharmaRTF | 0.1.4 | This R package provides an enhanced RTF wrapper that allows users to export tables from existing R packages like 'Huxtable' or 'GT' while adding essential metadata and features for regulatory reports, such as multiple title levels, footnotes, landscape orientation, and customizable margins. |
-| pillar | 1.11.0 | This package offers generics for formatting data columns with a wide array of colors suitable for modern terminal displays. |
-| pkgbuild | 1.4.8 | This package offers functions for building R packages by locating necessary compilers across different platforms and configuring the PATH accordingly. |
-| pkgconfig | 2.0.3 | This package allows users to set configuration options that apply only to individual packages, ensuring that changes do not affect other packages. |
-| pkgload | 1.4.0 | This package simulates the installation and attachment process of a package, facilitating rapid iteration during package development as a core feature of the 'devtools' package. |
-| prettyunits | 1.2.0 | This package provides human-readable formatting for various quantities, including time intervals, byte sizes, p-values, colors, and general numerical representations. |
-| processx | 3.8.6 | The 'processx' package provides tools for managing system processes in the background, allowing users to check the status, wait for completion, retrieve exit statuses, terminate processes, and read their standard output and error through non-blocking connections. |
-| progress | 1.2.3 | This package provides configurable progress bars for R applications, displaying information such as percentage completed, elapsed time, and estimated completion time, and is compatible with various environments including terminals, Emacs ESS, RStudio, Windows Rgui, and macOS R.app. |
-| ps | 1.9.1 | This package provides tools to list, query, and manipulate system processes across Windows, Linux, and macOS platforms. |
-| purrr | 1.1.0 | This package provides a comprehensive and cohesive set of tools for functional programming in R. |
-| r2rtf | 1.1.4 | This package enables users to create production-ready Rich Text Format (RTF) tables and figures with flexible formatting options. |
-| R6 | 2.6.1 | The R6 package provides a framework for creating lightweight reference classes in R that support public and private members, inheritance, and are simpler to use compared to R's S4 reference classes. |
-| RColorBrewer | 1.1-3 | This package offers color schemes for maps and other graphics, created by Cynthia Brewer, as detailed on the ColorBrewer website. |
-| Rcpp | 1.1.0 | The 'Rcpp' package facilitates seamless integration of R and C++ by allowing R functions to interface with C++ classes, enabling efficient data type mapping and enhancing performance for new code and third-party library integration. |
-| readr | 2.1.5 | The 'readr' package in R is designed to efficiently and accurately read rectangular data formats such as CSV, TSV, and FWF, while offering robust parsing capabilities to handle various data structures. |
-| readxl | 1.4.5 | This R package enables the import of Excel files (.xls and .xlsx) across Windows, Mac, and Linux platforms without requiring external dependencies. |
-| rematch | 2.0.0 | This package provides a simplified interface to the `regexpr` function for extracting matches and captured groups from regular expressions applied to character vectors. |
-| renv | 1.1.4 | `renv` is an R package that provides a toolkit for managing project-specific R libraries, enabling users to isolate, save, and restore package dependencies to enhance reproducibility and portability. |
-| rlang | 1.1.6 | This package provides a comprehensive set of tools for handling base types, leveraging core R features such as the condition system, and integrating essential 'Tidyverse' functionalities, particularly for tidy evaluation. |
-| roxygen2 | 7.3.2 | The 'roxygen2' package provides a streamlined way to generate R documentation, 'NAMESPACE' files, and collation fields using specially formatted comments directly in the code, facilitating easier maintenance and updates. |
-| rprojroot | 2.1.0 | This package provides robust and flexible methods for constructing file paths relative to a project's root directory, which is identified by specific criteria, such as the presence of a designated regular file. |
-| rtables | 0.6.13 | The 'rtables' package in R facilitates the creation of complex, hierarchical reporting tables by allowing users to declare multi-level tabulations and apply them to data with a flexible and convenient interface. |
-| scales | 1.4.0 | This package facilitates the mapping of data to graphical aesthetics by offering tools for automatically generating breaks and labels for axes and legends. |
-| snakecase | 0.11.1 | This package provides a straightforward and adaptable solution for parsing and converting strings into various case formats, such as snake case and camel case, among others. |
-| stringi | 1.8.7 | The 'stringi' package offers a comprehensive suite of tools for efficient manipulation and processing of character strings in R, including pattern searching, random string generation, case mapping, Unicode operations, and more, all while ensuring portability across different locales and platforms. |
-| stringr | 1.5.1 | This package provides a user-friendly and consistent interface to the 'stringi' package for string manipulation in R, ensuring uniform handling of arguments, NA values, and seamless integration between functions. |
-| survival | 3.8-3 | This R package provides essential survival analysis tools, including the creation of Surv objects, Kaplan-Meier and Aalen-Johansen curves, Cox regression models, and parametric accelerated failure time models. |
-| tibble | 3.3.0 | The package offers a 'tbl_df' class, known as a tibble, which provides enhanced data frame functionality with stricter validation and improved formatting for better data handling in R. |
-| tidyr | 1.3.1 | The 'tidyr' package in R provides tools for creating tidy data by reshaping datasets, managing nested structures, extracting values from strings, and handling missing values. |
-| tidyselect | 1.2.1 | This package provides a backend for implementing select-like functions in your own R packages, ensuring consistency with the 'tidyverse' selection interfaces. |
-| timechange | 0.3.0 | This package provides efficient tools for manipulating date-time objects with features for time-zone management, daylight saving adjustments, and various date-time modifications such as rounding and component updating. |
-| Tplyr | 1.2.1 | This package simplifies data manipulation for generating clinical summaries with a focus on traceability. |
-| tzdb | 0.5.0 | This package offers an updated IANA Time Zone Database along with a C++ interface for the 'date' library, facilitating comprehensive date and time manipulation in R, including time zone adjustments and calendar-specific calculations. |
-| utf8 | 1.2.6 | This package provides tools for processing, validating, normalizing, encoding, formatting, and displaying UTF-8 encoded international text using Unicode. |
-| V8 | 6.0.4 | This R package provides an interface to the V8 JavaScript engine, enabling users to execute JavaScript and WebAssembly code within R. |
-| vctrs | 0.6.5 | This package provides tools for consistent type coercion and size recycling by introducing new notions of prototype and size, enhancing the analysis of function interfaces through type- and size-stability. |
-| viridisLite | 0.4.2 | The 'viridisLite' package provides color maps that enhance graph readability for individuals with color blindness and are perceptually uniform for both color and black-and-white printing, along with offering bindings for use in 'ggplot2'. |
-| vroom | 1.6.5 | The 'vroom' package in R is designed for fast reading and writing of data files (such as CSV, TSV, and FWF) by utilizing an initial indexing step and lazy loading, allowing for efficient data processing with minimal resource usage. |
-| withr | 3.0.2 | This package offers a collection of functions designed to safely and temporarily modify the global state in R, allowing users to run code with these modifications without affecting the overall environment. |
-| xfun | 0.52 | This package provides a collection of miscellaneous functions that are commonly utilized in other packages maintained by Yihui Xie. |
-| xml2 | 1.3.8 | This package provides bindings to 'libxml2' for processing XML data through a consistent interface that utilizes 'XPath' expressions, along with support for XML schema validation. |
+| mgcv | 1.9-3 | This R package provides tools for fitting generalized additive and mixed models, along with various extensions, using methods like restricted marginal likelihood and cross-validation, including support for Bayesian inference and diverse smoothing techniques. |
+| mvtnorm | 1.3-3 | This package provides functions for computing multivariate normal and t probabilities, quantiles, random variates, densities, and log-likelihoods for multivariate Gaussian models and Gaussian copulas, with support for interval-censored and exact data. |
+| nlme | 3.1-168 | This package facilitates the fitting and comparison of Gaussian linear and nonlinear mixed-effects models for analyzing complex data structures. |
+| numDeriv | 2016.8-1.1 | This package provides methods for accurately calculating first and second order numerical derivatives using Richardson's extrapolation, complex step derivatives, and a simple difference method for real scalar and vector-valued functions. |
+| patchwork | 1.3.1 | The 'patchwork' package enhances the 'ggplot2' plotting system by allowing users to easily combine multiple plots into complex layouts using mathematical operators. |
+| pharmaRTF | 0.1.4 | This R package provides an enhanced RTF wrapper that enables the inclusion of advanced metadata and features in R tables, catering to regulatory submission requirements such as multiple title levels, footnotes, landscape orientation, and margin control. |
+| pillar | 1.11.0 | This package offers generics for formatting data columns with a wide array of colors compatible with modern terminal displays, enhancing the visual presentation of information. |
+| pkgbuild | 1.4.8 | This package provides essential functions for building R packages by locating the necessary compilers across various platforms and configuring the PATH for R to utilize them effectively. |
+| pkgconfig | 2.0.3 | This package allows users to set configuration options that apply exclusively to individual packages without affecting others. |
+| pkgload | 1.4.0 | The package streamlines the process of package installation and attachment, facilitating rapid iteration during package development. |
+| prettyunits | 1.2.0 | This package provides human-readable formatting for various quantities, including time intervals, file sizes, p-values, colors, and numeric values, enhancing the usability and readability of data presentation. |
+| processx | 3.8.6 | The 'processx' package provides tools for managing and interacting with background system processes in R, including functionalities for checking process status, waiting for completion, retrieving exit statuses, and handling output and error streams non-blockingly. |
+| progress | 1.2.3 | This R package offers configurable progress bars that display percentage, elapsed time, and estimated completion time in various environments including terminals, Emacs ESS, RStudio, and others, while also providing a C++ API compatible with or without Rcpp. |
+| ps | 1.9.1 | This package allows users to list, query, and manipulate system processes across Windows, Linux, and macOS operating systems. |
+| purrr | 1.1.0 | This package provides a comprehensive and consistent toolkit for functional programming in R, enabling users to apply functional programming principles efficiently. |
+| r2rtf | 1.1.4 | This package facilitates the creation of production-ready Rich Text Format (RTF) tables and figures with a high degree of formatting flexibility. |
+| R6 | 2.6.1 | The package provides a lightweight system for creating reference classes in R, allowing for public and private members, inheritance, and easier use compared to R's built-in reference classes. |
+| RColorBrewer | 1.1-3 | This R package offers color schemes for maps and graphics, inspired by the designs of Cynthia Brewer, as detailed on the ColorBrewer website. |
+| Rcpp | 1.1.0 | The 'Rcpp' package enables seamless integration of R and C++ by providing R functions and C++ classes that facilitate the conversion of R data types to C++ equivalents, allowing for enhanced performance and easier integration of third-party libraries. |
+| readr | 2.1.5 | The 'readr' package in R offers a fast and user-friendly interface for reading rectangular data formats such as CSV, TSV, and fixed-width files, while ensuring robust parsing and error handling for diverse data types. |
+| readxl | 1.4.5 | This R package provides the ability to import Excel files in both '.xls' and '.xlsx' formats across Windows, Mac, and Linux platforms without requiring external dependencies. |
+| rematch | 2.0.0 | This package provides a simplified interface for extracting matches and captured groups from regular expressions applied to character vectors, leveraging the functionality of R's `regexpr` function. |
+| renv | 1.1.4 | 'rENV' is a dependency management toolkit for R that enables the creation and management of project-specific libraries, allowing users to save and restore library states for enhanced portability and reproducibility of their projects. |
+| rlang | 1.1.6 | This package provides a comprehensive toolbox for leveraging base R types and core features, including the condition system and Tidyverse functionalities like tidy evaluation. |
+| roxygen2 | 7.3.2 | The 'roxygen2' package streamlines the process of generating R documentation, NAMESPACE files, and collation fields using specially formatted comments directly within the code, ensuring that documentation remains easily maintainable and up-to-date. |
+| rprojroot | 2.1.0 | This package provides robust and flexible mechanisms for constructing file paths relative to a project's root directory, identified by specific criteria, to ensure reliable file access within the project structure. |
+| rtables | 0.6.13 | The 'rtables' package in R facilitates the creation of complex, hierarchical reporting tables by enabling multi-level tabulations, flexible data grouping, and contextual summary computations within a user-friendly, pipe-able interface. |
+| scales | 1.4.0 | This package facilitates the mapping of data to graphical aesthetics, allowing for automatic generation of breaks and labels for axes and legends in visualizations. |
+| snakecase | 0.11.1 | This package provides a versatile and user-friendly tool for parsing and converting strings into various case formats, such as snake_case and camelCase. |
+| stringi | 1.8.7 | The `stringi` package provides a comprehensive suite of tools for handling and processing character strings in R, including pattern matching, random string generation, case mapping, and Unicode normalization, all optimized for performance and portability across different locales. |
+| stringr | 1.5.1 | This package provides a user-friendly set of consistent wrappers around the 'stringi' package for efficient string manipulation while ensuring uniform handling of missing values and compatibility between functions. |
+| survival | 3.8-3 | This R package provides essential tools for survival analysis, including the creation of Surv objects, Kaplan-Meier and Aalen-Johansen curves, Cox proportional hazards models, and parametric accelerated failure time models. |
+| tibble | 3.3.0 | This package offers a 'tbl_df' class, also known as a tibble, which enhances data frames with more rigorous checks and improved formatting for better usability in R. |
+| tidyr | 1.3.1 | The 'tidyr' package provides tools for creating tidy data by reshaping datasets, managing hierarchical structures, and handling missing values, ensuring that each column represents a variable, each row an observation, and each cell a single value. |
+| tidyselect | 1.2.1 | This package provides a backend for implementing select-like functions in R packages, ensuring consistency with other 'tidyverse' selection interfaces. |
+| timechange | 0.3.0 | This package provides efficient tools for manipulating date-time objects with features for time-zone management, daylight saving time considerations, and various date-time adjustments and modifications. |
+| Tplyr | 1.2.1 | This package provides a streamlined tool for manipulating data to facilitate the creation of clinical summaries with an emphasis on traceability. |
+| tzdb | 0.5.0 | This package provides an up-to-date IANA Time Zone Database and a C++ interface for the 'date' library, facilitating easy handling of dates, date-times, and time zone manipulations in R. |
+| utf8 | 1.2.6 | This package processes and outputs UTF-8 encoded international text, facilitating input validation, normalization, encoding, formatting, and display of Unicode characters. |
+| V8 | 6.0.4 | This R package provides an interface to the V8 JavaScript engine, allowing users to execute JavaScript and WebAssembly code within R. |
+| vctrs | 0.6.5 | This package introduces new concepts of prototype and size to ensure consistent type coercion and size recycling in R, enhancing the analysis of function interfaces with a focus on type and size stability. |
+| viridisLite | 0.4.2 | The 'viridis' package in R provides color maps that enhance graph readability for individuals with color blindness and are perceptually uniform, featuring bindings for both discrete and continuous color scales in 'ggplot2'. |
+| vroom | 1.6.5 | The 'vroom' package in R is designed for fast reading and writing of data files, such as CSV and TSV, by employing lazy loading and parallel processing techniques to efficiently handle large datasets. |
+| withr | 3.0.2 | This package provides a set of functions for safely and temporarily modifying the global state in R while running code, originally derived from the 'devtools' package, with minimal dependencies. |
+| xfun | 0.52 | This package provides a collection of miscellaneous functions that are often utilized in other packages maintained by Yihui Xie. |
+| xml2 | 1.3.8 | This R package provides bindings to 'libxml2' for handling XML data through a user-friendly interface that incorporates 'XPath' expressions, along with support for XML schema validation. |
 | xportr | 0.4.3 | This package provides tools for constructing CDISC-compliant datasets and verifying their adherence to CDISC standards. |
-| yaml | 2.3.10 | This package implements the 'libyaml' YAML 1.1 parser and emitter for R, enabling the reading and writing of YAML data conveniently. |
-| yyjsonr | 0.1.21 | This R package provides a fast parser, generator, and validator for converting between JSON, NDJSON, GeoJSON, and R objects, supporting standard data types and offering specialized handling for NULL and NA values. |
+| yaml | 2.3.10 | This package implements the 'libyaml' YAML 1.1 parser and emitter for R, allowing users to read and write YAML files efficiently. |
+| yyjsonr | 0.1.21 | This R package provides a fast and efficient way to parse, generate, and validate JSON, NDJSON, and GeoJSON data, converting them to and from R objects while supporting standard data types and various data containers. |
 
 # Appendix
 
