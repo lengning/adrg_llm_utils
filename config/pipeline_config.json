@@ -20,6 +20,10 @@
     "deps_out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/dataset_dependencies.csv",
     "inventory_out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/dataset_inventory.csv"
   },
+  "adam_scripts_analyzer": {
+    "scripts_dir": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/adam_scripts",
+    "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/adam_programs.csv"
+  },
   "renv_to_table": {
     "renv": "/Users/lengn/Documents/GitHub/adrg_llm_utils/inputs/renv.lock",
     "out": "/Users/lengn/Documents/GitHub/adrg_llm_utils/outputs/r_pkg_versions.csv"

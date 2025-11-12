@@ -10,7 +10,6 @@ editor: visual
 ---
 
 
-
 <Sponsor Name>
 
 Study CDISCPILOT01
@@ -116,7 +115,7 @@ Core variables are those that are represented across all/most analysis datasets.
 
 - ARM versus TRTxxP: 
 Are the values of ARM equivalent in meaning to values of TRTxxP?
-**Yes.** The study design clearly outlines the treatment groups, confirming that ARM and TRTxxP are used interchangeably to denote the same treatment assignments.
+**Yes.** The study design indicates that subjects were randomized into these treatment groups, confirming the equivalence of ARM and TRTxxP in this context.
 
 - ACTARM versus TRTxxA: 
 If TRTxxA is used, then are the values of ACTARM equivalent in meaning to values of TRTxxA?
@@ -124,7 +123,7 @@ If TRTxxA is used, then are the values of ACTARM equivalent in meaning to values
 
 - Use of ADaM Treatment Variables in Analysis: 
 Are both planned and actual treatment variables used in analysis?
-**Yes.** This is consistent with ADaM standards, which recommend using both planned and actual treatment variables for comprehensive analysis.
+**Yes.** This dual use of treatment variables allows for a comprehensive understanding of treatment effects in the study.
 
 - Use of ADaMTreatment Grouping Variables in Analysis: 
 Are both planned and actual treatment grouping variables used in analysis?
@@ -137,7 +136,7 @@ Are both planned and actual treatment grouping variables used in analysis?
 ## Use of Visit Windowing, Unscheduled Visits, and Record Selection
 
 - Was windowing used in one or more analysis datasets?
-**Yes.** This suggests that windowing was indeed applied in the analysis datasets to determine the appropriate analysis visits for subjects.
+**Yes.** The specific mention of the windowing algorithm in the methods section confirms its application in the analysis datasets.
 
 - Were unscheduled visits used in any analyses?
 <Yes/No>
@@ -203,13 +202,13 @@ Dataset Label | Class | Efficacy | Safety | Baseline or other subject characteri
 | Subject-Level Analysis Dataset \| ADSL | SUBJECT LEVEL ANALYSIS DATASET |  |  | X |  |  | one record per subject. Screen Failures are excluded. |
 | AE Time To 1st Derm. Event Analysis \| ADTTE | BASIC DATA STRUCTURE |  | X |  |  |  | one record per subject per parameter |
 
-### 5.2.1ADSL – Subject Level Analysis Dataset
+### ADSL – Subject Level Analysis Dataset
 
 (insert your text here)
 
 (insert date imputation rules if applicable)
 
-### 5.2.xDataset – Dataset Label
+### Dataset – Dataset Label
 
 (A new section is required for each dataset that is hyperlinked in the inventory table.  This section should be copied to create a new section for each dataset.  The text in the section header above must be edited to match the dataset name and label.
 
@@ -255,9 +254,13 @@ All programs for analysis datasets and primary and secondary efficacy resultsare
 
 ## ADaM Programs
 
-| Program Name | Output | Macro Used |
+| Program Name | Output | R functions Used |
 | --- | --- | --- |
-|  |  |  |
+| adadas | adadas.rds | abs, attr, build_from_derived, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_vars_dt, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, filter, if_else, is.na, ... |
+| adae | adae.rds | attr, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_vars_dtm, derive_vars_dtm_to_dt, derive_vars_duration, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, ifelse, is.na, library, list, list2env, map, mutate, ... |
+| adlbc | adlbc.rds | AVAL, abs, arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_var_chg, derive_vars_dt, derive_vars_dy, derive_vars_merged, desc, drop_unspec_vars, exprs, ... |
+| adsl | adsl.rds | arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_cat_var, create_var_from_codelist, derive_var_trtdurd, derive_vars_dt, derive_vars_duration, derive_vars_merged, distinct, drop_unspec_vars, exprs, file.path, filter, ... |
+| adtte | adtte.rds | as.Date, as.numeric, attr, c, case_when, censor_source, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_param_tte, derive_vars_dt, derive_vars_duration, derive_vars_merged, drop_unspec_vars, event, event_source, exprs, file.path, library, ... |
 
 ## Analysis Output Programs
 
