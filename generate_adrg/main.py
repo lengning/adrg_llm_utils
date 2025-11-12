@@ -36,6 +36,7 @@ PLACEHOLDER_ANALYSIS_TABLE = "{analysis output table}"
 PLACEHOLDER_VAR_TABLE = "{variable description table}"
 PLACEHOLDER_DEP_TABLE = "{data dependency table}"
 PLACEHOLDER_R_PACKAGES = "{r package table}"
+PLACEHOLDER_INVENTORY_TABLE = "{dataset inventory table}"
 PLACEHOLDER_PROTOCOL_NUMBER = "Study <Protocol Number>"
 
 PKG_DESCRIBER_SCRIPT = ROOT_DIR / "pkg_describer" / "main.r"
@@ -177,7 +178,7 @@ def run_var_filter(config: Dict[str, Any]) -> Path:
     return output_csv
 
 
-def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, Path]:
+def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, Path, Optional[Path]]:
     if not var_filter_csv.exists():
         raise PipelineError(
             "var_filter CSV required for adam_info not found: "
@@ -203,6 +204,12 @@ def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, P
     deps_path = resolve_path(deps_value)
     ensure_parent(deps_path)
 
+    # Handle inventory output (optional)
+    inventory_path = None
+    if "inventory_out" in config:
+        inventory_path = resolve_path(config["inventory_out"])
+        ensure_parent(inventory_path)
+
     script_path = ROOT_DIR / "adam_info" / "main.py"
     argv = [
         sys.executable,
@@ -216,6 +223,9 @@ def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, P
     ]
 
     argv.extend(["--deps-out", str(deps_path)])
+
+    if inventory_path:
+        argv.extend(["--inventory-out", str(inventory_path)])
 
     if config.get("print"):
         argv.append("--print")
@@ -231,7 +241,12 @@ def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, P
             "Expected adam_info dependencies CSV missing after script execution: "
             f"{deps_path}"
         )
-    return output_csv, deps_path
+    if inventory_path and not inventory_path.exists():
+        raise PipelineError(
+            "Expected adam_info inventory CSV missing after script execution: "
+            f"{inventory_path}"
+        )
+    return output_csv, deps_path, inventory_path
 
 
 def run_renv_to_table(config: Dict[str, Any]) -> Path:
@@ -336,6 +351,7 @@ def build_filled_template(
     var_table_md: str,
     deps_table_md: str,
     r_packages_md: str,
+    inventory_table_md: str,
     protocol_number: Optional[str] = None,
 ) -> str:
     template_text = template_path.read_text(encoding="utf-8")
@@ -363,6 +379,10 @@ def build_filled_template(
         raise PipelineError(
             f"Placeholder {PLACEHOLDER_R_PACKAGES!r} not found in template {template_path}"
         )
+    if PLACEHOLDER_INVENTORY_TABLE not in template_text:
+        raise PipelineError(
+            f"Placeholder {PLACEHOLDER_INVENTORY_TABLE!r} not found in template {template_path}"
+        )
     if protocol_number and PLACEHOLDER_PROTOCOL_NUMBER not in template_text:
         raise PipelineError(
             f"Placeholder {PLACEHOLDER_PROTOCOL_NUMBER!r} not found in template {template_path}"
@@ -374,6 +394,7 @@ def build_filled_template(
     filled = filled.replace(PLACEHOLDER_VAR_TABLE, var_table_md.strip())
     filled = filled.replace(PLACEHOLDER_DEP_TABLE, deps_table_md.strip())
     filled = filled.replace(PLACEHOLDER_R_PACKAGES, r_packages_md.strip())
+    filled = filled.replace(PLACEHOLDER_INVENTORY_TABLE, inventory_table_md.strip())
     if protocol_number:
         replacement = f"Study {protocol_number}"
         filled = filled.replace(PLACEHOLDER_PROTOCOL_NUMBER, replacement)
@@ -549,7 +570,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         )
 
     if not args.skip_adam_info:
-        var_desc_output, deps_output = run_adam_info(adam_info_cfg, var_filter_output)
+        var_desc_output, deps_output, inventory_output = run_adam_info(adam_info_cfg, var_filter_output)
     else:
         var_desc_output = resolve_path(adam_info_cfg.get("out", "var_descriptions.csv"))
         if not var_desc_output.exists():
@@ -564,10 +585,21 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
                 "adam_info configuration missing 'deps_out' entry for existing outputs"
             ) from exc
         deps_output = resolve_path(deps_value)
+
+        # Handle inventory output (optional)
+        inventory_output = None
+        if "inventory_out" in adam_info_cfg:
+            inventory_output = resolve_path(adam_info_cfg["inventory_out"])
+
     if not deps_output.exists():
         raise PipelineError(
             "adam_info dependencies CSV not found; either run the step or update the configuration: "
             f"{deps_output}"
+        )
+    if inventory_output and not inventory_output.exists():
+        raise PipelineError(
+            "adam_info inventory CSV not found; either run the step or update the configuration: "
+            f"{inventory_output}"
         )
 
     if not args.skip_renv:
@@ -596,6 +628,14 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     var_table_md = csv_to_markdown_table(var_desc_output)
     deps_table_md = csv_to_markdown_table(deps_output)
     r_packages_md = csv_to_markdown_table(pkg_output)
+
+    # Convert inventory to markdown table if available
+    if inventory_output and inventory_output.exists():
+        inventory_table_md = csv_to_markdown_table(inventory_output)
+    else:
+        # Provide empty table if inventory not generated
+        inventory_table_md = "| Dataset\nDataset Label | Class | Efficacy | Safety | Baseline or other subject characteristics | PK/PD | Primary Objective | Structure |\n| --- | --- | --- | --- | --- | --- | --- | --- |"
+
     protocol_number = extract_protocol_number(protocol_md)
 
     template_path = resolve_path(template_cfg["path"])
@@ -610,6 +650,7 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         var_table_md,
         deps_table_md,
         r_packages_md,
+        inventory_table_md,
         protocol_number=protocol_number,
     )
 

@@ -2,13 +2,14 @@
 """
 Extract variable descriptions from spec file based on key variables from Datasets sheet.
 Analyze Methods sheet to determine dataset dependencies.
+Generate dataset inventory table with purpose flags.
 
 Usage:
   # Using key variables from Datasets sheet:
-  python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
-  
+  python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv
+
   # Using variables from input CSV file:
-  python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_file.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+  python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_file.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv
 """
 
 import argparse
@@ -318,6 +319,156 @@ def extract_dataset_dependencies(
     return output_df
 
 
+def determine_dataset_purpose(dataset_name: str, label: str, class_name: str) -> Dict[str, str]:
+    """
+    Determine the purpose flags for a dataset based on its name, label, and class.
+
+    Args:
+        dataset_name: Dataset name (e.g., ADSL, ADAE, ADADAS)
+        label: Dataset label/description
+        class_name: ADaM class (e.g., ADSL, BDS, OCCDS)
+
+    Returns:
+        Dictionary with purpose flags (Efficacy, Safety, etc.)
+    """
+    dataset_upper = dataset_name.upper()
+    label_lower = label.lower() if pd.notna(label) else ''
+    class_upper = class_name.upper() if pd.notna(class_name) else ''
+
+    purposes = {
+        'Efficacy': '',
+        'Safety': '',
+        'Baseline or other subject characteristics': '',
+        'PK/PD': '',
+        'Primary Objective': ''
+    }
+
+    # ADSL is always for subject characteristics
+    if dataset_upper == 'ADSL':
+        purposes['Baseline or other subject characteristics'] = 'X'
+        return purposes
+
+    # Safety datasets - typically adverse events, concomitant meds, etc.
+    safety_indicators = ['adverse', 'ae', 'safety', 'conmed', 'medication', 'vital']
+    if any(ind in dataset_upper.lower() for ind in ['adae', 'adcm', 'advs']):
+        purposes['Safety'] = 'X'
+    elif any(ind in label_lower for ind in safety_indicators):
+        purposes['Safety'] = 'X'
+
+    # Efficacy datasets - typically named with disease/condition abbreviations
+    efficacy_indicators = ['efficacy', 'adas', 'mmse', 'response', 'outcome', 'endpoint']
+    if any(ind in dataset_upper.lower() for ind in ['adeff', 'adas', 'admh', 'adqs']):
+        purposes['Efficacy'] = 'X'
+    elif any(ind in label_lower for ind in efficacy_indicators):
+        purposes['Efficacy'] = 'X'
+
+    # Time-to-event datasets can be efficacy or safety
+    if 'adtte' in dataset_upper.lower() or 'time' in label_lower:
+        if 'adverse' in label_lower or 'ae' in label_lower or 'safety' in label_lower:
+            purposes['Safety'] = 'X'
+        else:
+            purposes['Efficacy'] = 'X'
+
+    # Lab data can be efficacy or safety
+    if any(ind in dataset_upper.lower() for ind in ['adlb', 'adlbc']):
+        # Lab data is typically both efficacy and safety
+        purposes['Efficacy'] = 'X'
+        purposes['Safety'] = 'X'
+
+    # PK/PD datasets
+    pkpd_indicators = ['pk', 'pd', 'pharmacokinetic', 'pharmacodynamic', 'concentration']
+    if any(ind in dataset_upper.lower() for ind in ['adpc', 'adpp', 'adpk']):
+        purposes['PK/PD'] = 'X'
+    elif any(ind in label_lower for ind in pkpd_indicators):
+        purposes['PK/PD'] = 'X'
+
+    # Primary objective - this would need to be specified explicitly
+    # For now, we'll leave it empty unless explicitly stated
+    if 'primary' in label_lower:
+        purposes['Primary Objective'] = 'X'
+
+    return purposes
+
+
+def extract_dataset_inventory(
+    spec_file: str,
+    output_file: str
+) -> pd.DataFrame:
+    """
+    Extract dataset inventory table from Datasets sheet.
+
+    Creates a table with:
+    - Dataset Dataset Label (combined)
+    - Class
+    - Efficacy (X or empty)
+    - Safety (X or empty)
+    - Baseline or other subject characteristics (X or empty)
+    - PK/PD (X or empty)
+    - Primary Objective (X or empty)
+    - Structure
+
+    Args:
+        spec_file: Path to Excel file with Datasets sheet
+        output_file: Path to output CSV file
+
+    Returns:
+        DataFrame with dataset inventory
+    """
+    try:
+        df = pd.read_excel(spec_file, sheet_name='Datasets')
+    except FileNotFoundError:
+        sys.exit(f"ERROR: Spec file not found at: {spec_file}")
+    except ValueError as e:
+        sys.exit(f"ERROR: Could not read Datasets sheet from {spec_file}: {e}")
+
+    # Check required columns
+    required_columns = ['Dataset', 'Label', 'Class', 'Structure']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        sys.exit(f"ERROR: Datasets sheet is missing required columns: {missing_columns}")
+
+    # Build output rows
+    output_rows = []
+
+    for _, row in df.iterrows():
+        dataset = str(row['Dataset']).strip() if pd.notna(row['Dataset']) else ''
+        label = str(row['Label']).strip() if pd.notna(row['Label']) else ''
+        class_name = str(row['Class']).strip() if pd.notna(row['Class']) else ''
+        structure = str(row['Structure']).strip() if pd.notna(row['Structure']) else ''
+
+        if not dataset:
+            continue
+
+        # Determine purpose flags
+        purposes = determine_dataset_purpose(dataset, label, class_name)
+
+        # Combine dataset and label for first column
+        dataset_label = f"{label} | {dataset}" if label else dataset
+
+        output_rows.append({
+            'Dataset\nDataset Label': dataset_label,
+            'Class': class_name,
+            'Efficacy': purposes['Efficacy'],
+            'Safety': purposes['Safety'],
+            'Baseline or other subject characteristics': purposes['Baseline or other subject characteristics'],
+            'PK/PD': purposes['PK/PD'],
+            'Primary Objective': purposes['Primary Objective'],
+            'Structure': structure
+        })
+
+    # Create output DataFrame
+    output_df = pd.DataFrame(output_rows)
+
+    # Write to CSV
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    output_df.to_csv(output_file, index=False)
+
+    return output_df
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Extract variable descriptions and dataset dependencies from spec file"
@@ -341,11 +492,15 @@ def main():
         help='Path to output CSV file for dataset dependencies (optional)'
     )
     parser.add_argument(
+        '--inventory-out',
+        help='Path to output CSV file for dataset inventory table (optional)'
+    )
+    parser.add_argument(
         '--print',
         action='store_true',
         help='Print results to stdout'
     )
-    
+
     args = parser.parse_args()
     
     # Extract variable descriptions
@@ -361,13 +516,24 @@ def main():
     # Extract dataset dependencies if requested
     if args.deps_out:
         deps_df = extract_dataset_dependencies(args.spec, args.deps_out)
-        
+
         if args.print:
             print("\nDataset Dependencies:")
             print(deps_df.to_string(index=False))
             print()
-        
+
         print(f"Wrote {args.deps_out} with {len(deps_df)} datasets.")
+
+    # Extract dataset inventory if requested
+    if args.inventory_out:
+        inventory_df = extract_dataset_inventory(args.spec, args.inventory_out)
+
+        if args.print:
+            print("\nDataset Inventory:")
+            print(inventory_df.to_string(index=False))
+            print()
+
+        print(f"Wrote {args.inventory_out} with {len(inventory_df)} datasets.")
 
 
 if __name__ == "__main__":

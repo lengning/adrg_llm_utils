@@ -1,0 +1,7 @@
+"Dataset
+Dataset Label",Class,Efficacy,Safety,Baseline or other subject characteristics,PK/PD,Primary Objective,Structure
+ADAS-Cog Analysis | ADADAS,BASIC DATA STRUCTURE,X,,,,,one record per subject per parameter per analysis visit per analysis date
+Adverse Events Analysis Dataset | ADAE,ADAM OTHER,,X,,,,one record per subject per adverse event
+Analysis Dataset Lab Blood Chemistry | ADLBC,BASIC DATA STRUCTURE,X,X,,,,one record per subject per parameter per analysis visit
+Subject-Level Analysis Dataset | ADSL,SUBJECT LEVEL ANALYSIS DATASET,,,X,,,one record per subject. Screen Failures are excluded.
+AE Time To 1st Derm. Event Analysis | ADTTE,BASIC DATA STRUCTURE,,X,,,,one record per subject per parameter

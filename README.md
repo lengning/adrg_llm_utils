@@ -90,7 +90,7 @@ python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_f
 
 ### adam_info
 
-**Description:** Extracts variable descriptions from ADaM spec files and analyzes dataset dependencies by examining the Methods sheet.
+**Description:** Extracts variable descriptions from ADaM spec files, analyzes dataset dependencies by examining the Methods sheet, and generates a dataset inventory table.
 
 **What it does:**
 - Reads ADaM specification Excel files (with Datasets, Variables, and Methods sheets)
@@ -98,17 +98,18 @@ python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_f
 - Analyzes the Methods sheet to determine dataset dependencies
 - Outputs unique variable names (without dataset prefix) with their descriptions
 - Generates a dataset dependency table showing which datasets depend on which other datasets
+- **NEW**: Generates a dataset inventory table with purpose flags (Efficacy, Safety, PK/PD, etc.)
 
 **Usage:**
 
 Extract variable descriptions from key variables in Datasets sheet:
 ```bash
-python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv
 ```
 
 Extract variable descriptions from variables in an input CSV file (e.g., from var_filter output):
 ```bash
-python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv
 ```
 
 **Options:**
@@ -116,11 +117,13 @@ python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_
 - `--out PATH`: Path to output CSV file for variable descriptions (required)
 - `--input PATH`: Optional path to input CSV file with `variables` column (e.g., output from `var_filter`). If not provided, uses key variables from Datasets sheet.
 - `--deps-out PATH`: Optional path to output CSV file for dataset dependencies
+- `--inventory-out PATH`: Optional path to output CSV file for dataset inventory table
 - `--print`: Print results to stdout
 
-**Output:** 
+**Output:**
 - Variable descriptions CSV: `Variable Name`, `Variable Description` (unique variables without dataset prefix)
 - Dataset dependencies CSV (if `--deps-out` provided): `dataset name`, `depend on the following datasets`
+- Dataset inventory CSV (if `--inventory-out` provided): Dataset inventory table with purpose flags (Efficacy, Safety, Baseline/subject characteristics, PK/PD, Primary Objective) and structure
 
 **Notes:**
 - Variables are extracted as unique names (dataset prefix removed)
@@ -130,10 +133,10 @@ python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_
 **Example:**
 ```bash
 # Extract from key variables in Datasets sheet
-python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --print
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv --print
 
 # Extract from variables found in R scripts (via var_filter output)
-python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --print
+python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv --print
 ```
 
 ---
@@ -375,9 +378,9 @@ A typical workflow might involve:
    python -m var_filter.main --folder inputs/tlf_scripts --out outputs/output_var_filter_folder.csv
    ```
 
-6. **Extract variable descriptions and dataset dependencies:**
+6. **Extract variable descriptions, dataset dependencies, and dataset inventory:**
    ```bash
-   python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv
+   python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_var_filter_folder.csv --out outputs/var_descriptions.csv --deps-out outputs/dataset_dependencies.csv --inventory-out outputs/dataset_inventory.csv
    ```
 
 ### Using `generate_adrg.py`
@@ -407,7 +410,7 @@ Once you have run the individual modules (or if you prefer to orchestrate them i
      --skip-renv --skip-pkg-describer --fill-questions
    ```
 
-5. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
+5. The script runs the SDTM/MedDRA, protocol, R-script analysis, ADaM variable summarisation, and R package documentation steps (unless skipped) and replaces the placeholders `{sdtm medra version table}`, `{protocol info md}`, `{analysis output table}`, `{variable description table}`, `{data dependency table}`, `{dataset inventory table}`, and `{r package table}` in the Quarto template `adrg_doc/adrg-template.qmd`. The ADaM step automatically feeds the `{analysis output table}` CSV into `adam_info` as the `--input` argument, generates the dataset inventory table with purpose flags, while the R package documentation step runs `renv_to_table` followed by `pkg_describer` to convert `renv.lock` and describe the packages.
 
 6. The filled ADRG document is written to the Quarto output path specified in the template configuration (e.g., `outputs/adrg-filled.qmd`). If `--fill-questions` is specified, the yes/no questions are filled in the same file.
 

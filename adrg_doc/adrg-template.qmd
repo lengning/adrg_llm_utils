@@ -138,11 +138,7 @@ Additional Content of Interest
 
 ## Analysis Datasets
 
-| Dataset
-Dataset Label | Class | Efficacy | Safety | Baseline or other subject characteristics | PK/PD | Primary Objective | Structure |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Subject Level Analysis Dataset | ADSL |  |  | X |  |  | One observation per subject |
-|  |  |  |  |  |  |  |  |
+{dataset inventory table}
 
 ### 5.2.1ADSL – Subject Level Analysis Dataset
 
