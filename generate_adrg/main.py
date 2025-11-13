@@ -286,6 +286,11 @@ def run_adam_scripts_analyzer(config: Dict[str, Any]) -> Path:
         str(output_csv),
     ]
 
+    # Add spec file if provided
+    if "spec" in config:
+        spec_path = resolve_path(config["spec"])
+        argv.extend(["--spec", str(spec_path)])
+
     run_command(argv)
 
     if not output_csv.exists():
