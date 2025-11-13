@@ -255,6 +255,40 @@ def create_adam_scripts_task(agent: Agent, config: Dict[str, Any]) -> Task:
     )
 
 
+def create_content_extraction_task(agent: Agent, config: Dict[str, Any]) -> Task:
+    """Task for extracting additional ADRG content (ADSL desc, date imputation, etc.)"""
+
+    def action(context: Dict[str, Any]) -> Dict[str, Any]:
+        content_cfg = config["adrg_content_extractor"]
+        spec_path = resolve_path(content_cfg["spec"], ROOT_DIR)
+        scripts_dir = resolve_path(content_cfg["scripts_dir"], ROOT_DIR)
+        output_path = resolve_path(content_cfg["out"], ROOT_DIR)
+
+        script_path = ROOT_DIR / "adrg_content_extractor" / "main.py"
+        args = [
+            "--spec", str(spec_path),
+            "--scripts-dir", str(scripts_dir),
+            "--out", str(output_path)
+        ]
+
+        # Add optional protocol path if provided
+        if "protocol" in content_cfg:
+            protocol_path = resolve_path(content_cfg["protocol"], ROOT_DIR)
+            args.extend(["--protocol", str(protocol_path)])
+
+        run_python_module(str(script_path), args)
+
+        return {"output_path": output_path}
+
+    return Task(
+        task_id="extract_adrg_content",
+        description="Extract additional ADRG content (dataset descriptions, imputation rules, etc.)",
+        agent=agent,
+        action=action,
+        config_key="adrg_content_extractor"
+    )
+
+
 def create_renv_task(agent: Agent, config: Dict[str, Any]) -> Task:
     """Task for extracting R package versions"""
 
@@ -377,6 +411,27 @@ def create_assembly_task(agent: Agent, config: Dict[str, Any]) -> Task:
         # Note: Disabled for now as template may not have the placeholder
         protocol_number = None  # extract_protocol_number(protocol_md) if protocol_output.exists() else None
 
+        # Load additional ADRG content if available
+        import json
+        adrg_content_output = get_output_path("extract_adrg_content", "adrg_content_extractor", "out")
+        adsl_desc = ""
+        date_imputation = ""
+        source_data_desc = ""
+        split_datasets = ""
+        intermediate_datasets = ""
+
+        if adrg_content_output.exists():
+            try:
+                with open(adrg_content_output, 'r', encoding='utf-8') as f:
+                    adrg_content = json.load(f)
+                    adsl_desc = adrg_content.get('adsl_description', '')
+                    date_imputation = adrg_content.get('date_imputation_rules', '')
+                    source_data_desc = adrg_content.get('source_data_description', '')
+                    split_datasets = adrg_content.get('split_datasets', '')
+                    intermediate_datasets = adrg_content.get('intermediate_datasets', '')
+            except Exception as e:
+                print(f"Warning: Could not load ADRG content: {e}", file=sys.stderr)
+
         # Build filled template
         template_cfg = config["template"]
         template_path = resolve_path(template_cfg["path"], ROOT_DIR)
@@ -392,7 +447,12 @@ def create_assembly_task(agent: Agent, config: Dict[str, Any]) -> Task:
             r_packages_md,
             inventory_table_md,
             adam_programs_md,
-            protocol_number=protocol_number
+            protocol_number=protocol_number,
+            adsl_description=adsl_desc,
+            date_imputation_rules=date_imputation,
+            source_data_description=source_data_desc,
+            split_datasets_description=split_datasets,
+            intermediate_datasets_description=intermediate_datasets
         )
 
         # Write filled document
@@ -412,6 +472,7 @@ def create_assembly_task(agent: Agent, config: Dict[str, Any]) -> Task:
             "analyze_tlf_scripts",
             "extract_adam_info",
             "analyze_adam_scripts",
+            "extract_adrg_content",
             "generate_pkg_descriptions"
         ],
         config_key="template"
@@ -542,6 +603,7 @@ def main():
         create_var_filter_task(agents_dict["code_analysis_agent"], config),
         create_adam_info_task(agents_dict["adam_spec_agent"], config),
         create_adam_scripts_task(agents_dict["code_analysis_agent"], config),
+        create_content_extraction_task(agents_dict["adam_spec_agent"], config),
         create_renv_task(agents_dict["package_doc_agent"], config),
         create_pkg_describer_task(agents_dict["package_doc_agent"], config),
         create_assembly_task(agents_dict["assembly_agent"], config),

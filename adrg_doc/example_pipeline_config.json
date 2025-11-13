@@ -25,6 +25,12 @@
     "out": "outputs/adam_programs.csv",
     "spec": "inputs/adam-pilot-5.xlsx"
   },
+  "adrg_content_extractor": {
+    "spec": "inputs/adam-pilot-5.xlsx",
+    "scripts_dir": "inputs/adam_scripts",
+    "out": "outputs/adrg_content.json",
+    "protocol": "outputs/protocol_description.md"
+  },
   "renv_to_table": {
     "renv": "inputs/renv.lock",
     "out": "outputs/r_pkg_versions.csv"

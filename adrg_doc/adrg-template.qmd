@@ -49,7 +49,7 @@ This document provides context for the analysis datasets and terminology that be
 
 ## Source Data Used for Analysis Dataset Creation
 
-(insert your text here)
+{source data description}
 
 Include the following text if applicable: Please refer to the Legacy Data Conversion Plan and Report Appendix for additional details.
 
@@ -110,7 +110,7 @@ Are both planned and actual treatment grouping variables used in analysis?
 
 ## Split Datasets
 
-(insert your textortablehereor indicate there are no split datasets)
+{split datasets description}
 
 ## Data Dependencies
 
@@ -118,7 +118,7 @@ Are both planned and actual treatment grouping variables used in analysis?
 
 ## Intermediate Datasets
 
-(insert your text hereor indicate there are no intermediate datasets)
+{intermediate datasets description}
 
 # Analysis Dataset Descriptions
 
@@ -145,9 +145,9 @@ Additional Content of Interest
 
 ### ADSL – Subject Level Analysis Dataset
 
-(insert your text here)
+{adsl dataset description}
 
-(insert date imputation rules if applicable)
+{date imputation rules}
 
 ### Dataset – Dataset Label
 
