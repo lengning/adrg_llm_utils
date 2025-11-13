@@ -39,6 +39,12 @@ PLACEHOLDER_R_PACKAGES = "{r package table}"
 PLACEHOLDER_INVENTORY_TABLE = "{dataset inventory table}"
 PLACEHOLDER_ADAM_PROGRAMS = "{adam programs table}"
 PLACEHOLDER_PROTOCOL_NUMBER = "Study <Protocol Number>"
+# New placeholders for additional content
+PLACEHOLDER_ADSL_DESC = "{adsl dataset description}"
+PLACEHOLDER_DATE_IMPUTATION = "{date imputation rules}"
+PLACEHOLDER_SOURCE_DATA = "{source data description}"
+PLACEHOLDER_SPLIT_DATASETS = "{split datasets description}"
+PLACEHOLDER_INTERMEDIATE_DATASETS = "{intermediate datasets description}"
 
 PKG_DESCRIBER_SCRIPT = ROOT_DIR / "pkg_describer" / "main.r"
 
@@ -407,6 +413,11 @@ def build_filled_template(
     inventory_table_md: str,
     adam_programs_md: str,
     protocol_number: Optional[str] = None,
+    adsl_description: str = "",
+    date_imputation_rules: str = "",
+    source_data_description: str = "",
+    split_datasets_description: str = "",
+    intermediate_datasets_description: str = "",
 ) -> str:
     template_text = template_path.read_text(encoding="utf-8")
     if PLACEHOLDER_TABLE not in template_text:
@@ -454,6 +465,19 @@ def build_filled_template(
     filled = filled.replace(PLACEHOLDER_R_PACKAGES, r_packages_md.strip())
     filled = filled.replace(PLACEHOLDER_INVENTORY_TABLE, inventory_table_md.strip())
     filled = filled.replace(PLACEHOLDER_ADAM_PROGRAMS, adam_programs_md.strip())
+
+    # Replace new content placeholders
+    if adsl_description:
+        filled = filled.replace(PLACEHOLDER_ADSL_DESC, adsl_description.strip())
+    if date_imputation_rules:
+        filled = filled.replace(PLACEHOLDER_DATE_IMPUTATION, date_imputation_rules.strip())
+    if source_data_description:
+        filled = filled.replace(PLACEHOLDER_SOURCE_DATA, source_data_description.strip())
+    if split_datasets_description:
+        filled = filled.replace(PLACEHOLDER_SPLIT_DATASETS, split_datasets_description.strip())
+    if intermediate_datasets_description:
+        filled = filled.replace(PLACEHOLDER_INTERMEDIATE_DATASETS, intermediate_datasets_description.strip())
+
     if protocol_number:
         replacement = f"Study {protocol_number}"
         filled = filled.replace(PLACEHOLDER_PROTOCOL_NUMBER, replacement)

@@ -1,19 +1,24 @@
 Variable Name,Variable Description
 AGE,Age
 AGEGR1,Pooled Age Group 1
+ANL01FL,Analysis Flag 01
 AVAL,Analysis Value
 AVISITN,Analysis Visit (N)
 BASE,Baseline Value
 BMIBL,Baseline BMI (kg/m^2)
 CHG,Change from Baseline
 CNSR,Censor
+EFFFL,Efficacy Population Flag
 HEIGHTBL,Baseline Height (cm)
+ITTFL,Intent-To-Treat Population Flag
 MMSETOT,MMSE Total
 PARAM,Parameter
 PARAMCD,Parameter Code
 RACE,Race
 STUDYID,Study Identifier
 TRT01A,Actual Treatment for Period 01
+TRT01P,Planned Treatment for Period 01
+TRTP,Planned Treatment
 TRTPN,Planned Treatment (N)
 USUBJID,Unique Subject Identifier
 WEIGHTBL,Baseline Weight (kg)
