@@ -1,5 +1,9 @@
 ---
-title: "Analysis Data Reviewer’s Guide"
+title: "Analysis Data Reviewer's Guide"
+subtitle: |
+  Sponsor Name; 
+  Study Protocol Number; 
+  ADRG Template Version ccyy-mm-dd
 format: 
   pdf:
     toc: true
@@ -10,11 +14,11 @@ editor: visual
 ---
 
 
-Sponsor Name
 
-Study Protocol Number
 
-ADRG Template Version ccyy-mm-dd
+
+
+
 
 
 {{< pagebreak >}}

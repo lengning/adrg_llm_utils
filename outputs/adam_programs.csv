@@ -1,6 +1,6 @@
-Program Name,Output,R functions Used
-adadas,adadas.rds,"abs, attr, build_from_derived, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_vars_dt, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, filter, if_else, is.na, ..."
-adae,adae.rds,"attr, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_vars_dtm, derive_vars_dtm_to_dt, derive_vars_duration, derive_vars_dy, derive_vars_merged, drop_unspec_vars, exprs, file.path, ifelse, is.na, library, list, list2env, map, mutate, ..."
-adlbc,adlbc.rds,"AVAL, abs, arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_var_from_codelist, derive_var_base, derive_var_chg, derive_vars_dt, derive_vars_dy, derive_vars_merged, desc, drop_unspec_vars, exprs, ..."
-adsl,adsl.rds,"arrange, as.numeric, attr, c, case_when, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, create_cat_var, create_var_from_codelist, derive_var_trtdurd, derive_vars_dt, derive_vars_duration, derive_vars_merged, distinct, drop_unspec_vars, exprs, file.path, filter, ..."
-adtte,adtte.rds,"as.Date, as.numeric, attr, c, case_when, censor_source, check_ct_data, colnames, convert_blanks_to_na, convert_na_to_blanks, derive_param_tte, derive_vars_dt, derive_vars_duration, derive_vars_merged, drop_unspec_vars, event, event_source, exprs, file.path, library, ..."
+Program Name,Output,Dataset Description
+adadas,adadas.rds,ADAS-Cog Analysis
+adae,adae.rds,Adverse Events Analysis Dataset
+adlbc,adlbc.rds,Analysis Dataset Lab Blood Chemistry
+adsl,adsl.rds,Subject-Level Analysis Dataset
+adtte,adtte.rds,AE Time To 1st Derm. Event Analysis

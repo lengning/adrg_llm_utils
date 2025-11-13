@@ -22,7 +22,8 @@
   },
   "adam_scripts_analyzer": {
     "scripts_dir": "inputs/adam_scripts",
-    "out": "outputs/adam_programs.csv"
+    "out": "outputs/adam_programs.csv",
+    "spec": "inputs/adam-pilot-5.xlsx"
   },
   "renv_to_table": {
     "renv": "inputs/renv.lock",

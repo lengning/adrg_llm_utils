@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
 ADaM Scripts Analyzer
-Analyzes R scripts in inputs/adam_scripts to extract program names, outputs, and functions used.
+Analyzes R scripts in inputs/adam_scripts to extract program names, outputs, and dataset descriptions.
 """
 
 import argparse
 import csv
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Optional
+import pandas as pd
 
 
 def extract_output_files(r_code: str) -> List[str]:
@@ -112,6 +113,37 @@ def analyze_r_script(script_path: Path) -> Dict[str, any]:
     }
 
 
+def read_dataset_descriptions(spec_path: Optional[Path]) -> Dict[str, str]:
+    """
+    Read dataset descriptions from ADaM specification file.
+
+    Args:
+        spec_path: Path to ADaM spec Excel file
+
+    Returns:
+        Dictionary mapping dataset name (uppercase) to description (label)
+    """
+    if not spec_path or not spec_path.exists():
+        return {}
+
+    try:
+        # Read Datasets sheet
+        df = pd.read_excel(spec_path, sheet_name='Datasets')
+
+        # Create mapping from uppercase dataset name to label
+        dataset_descriptions = {}
+        for _, row in df.iterrows():
+            dataset_name = str(row['Dataset']).upper()
+            label = str(row['Label'])
+            dataset_descriptions[dataset_name] = label
+
+        return dataset_descriptions
+
+    except Exception as e:
+        print(f"Warning: Could not read dataset descriptions from {spec_path}: {e}")
+        return {}
+
+
 def analyze_all_scripts(scripts_dir: Path) -> List[Dict[str, any]]:
     """
     Analyze all R scripts in the given directory.
@@ -135,38 +167,43 @@ def analyze_all_scripts(scripts_dir: Path) -> List[Dict[str, any]]:
     return results
 
 
-def write_results_to_csv(results: List[Dict[str, any]], output_path: Path) -> None:
+def write_results_to_csv(
+    results: List[Dict[str, any]],
+    output_path: Path,
+    dataset_descriptions: Dict[str, str]
+) -> None:
     """
     Write analysis results to CSV file.
 
     Args:
         results: List of analysis results
         output_path: Path to output CSV file
+        dataset_descriptions: Dictionary mapping dataset names to descriptions
     """
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
 
         # Write header
-        writer.writerow(['Program Name', 'Output', 'R functions Used'])
+        writer.writerow(['Program Name', 'Output', 'Dataset Description'])
 
         # Write data rows
         for result in results:
             program_name = result['program_name']
             outputs = ', '.join(result['outputs']) if result['outputs'] else ''
-            functions = ', '.join(result['functions'][:20])  # Limit to first 20 functions
 
-            # Add "..." if there are more functions
-            if len(result['functions']) > 20:
-                functions += ', ...'
+            # Get dataset description by matching program name to dataset name
+            # Program names are lowercase (e.g., 'adsl'), dataset names are uppercase (e.g., 'ADSL')
+            dataset_name = program_name.upper()
+            description = dataset_descriptions.get(dataset_name, '')
 
-            writer.writerow([program_name, outputs, functions])
+            writer.writerow([program_name, outputs, description])
 
     print(f"\nWrote {output_path} with {len(results)} programs.")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Analyze ADaM R scripts to extract program info, outputs, and functions used.'
+        description='Analyze ADaM R scripts to extract program info, outputs, and dataset descriptions.'
     )
     parser.add_argument(
         '--scripts-dir',
@@ -178,12 +215,18 @@ def main():
         required=True,
         help='Path to output CSV file (e.g., outputs/adam_programs.csv)'
     )
+    parser.add_argument(
+        '--spec',
+        required=False,
+        help='Path to ADaM specification Excel file (e.g., inputs/adam-pilot-5.xlsx) to get dataset descriptions'
+    )
 
     args = parser.parse_args()
 
     # Convert to Path objects
     scripts_dir = Path(args.scripts_dir)
     output_path = Path(args.out)
+    spec_path = Path(args.spec) if args.spec else None
 
     # Validate scripts directory exists
     if not scripts_dir.exists():
@@ -197,6 +240,13 @@ def main():
     # Create output directory if needed
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Read dataset descriptions from spec file
+    dataset_descriptions = read_dataset_descriptions(spec_path)
+    if dataset_descriptions:
+        print(f"Loaded {len(dataset_descriptions)} dataset descriptions from {spec_path}\n")
+    else:
+        print("No dataset descriptions loaded (spec file not provided or could not be read)\n")
+
     # Analyze all scripts
     print(f"Analyzing R scripts in {scripts_dir}...\n")
     results = analyze_all_scripts(scripts_dir)
@@ -206,7 +256,7 @@ def main():
         return 1
 
     # Write results to CSV
-    write_results_to_csv(results, output_path)
+    write_results_to_csv(results, output_path, dataset_descriptions)
 
     print(f"\nAnalysis complete!")
     return 0

@@ -199,6 +199,7 @@ def read_xlsx_file(xlsx_path: Path) -> str:
 # ========= Data Context Building =========
 def build_data_context(config: Dict, base_path: Path) -> str:
     """Build context from all available data files."""
+    print("\nBuilding data context from available sources:")
     context_parts = []
 
     # Helper to resolve paths
@@ -213,19 +214,26 @@ def build_data_context(config: Dict, base_path: Path) -> str:
         protocol_cfg = config['protocol_retrieve']
         out_path = resolve_path(protocol_cfg.get('out', 'outputs/protocol_description.md'))
         if out_path.exists():
+            print(f"  ✓ Loading protocol information from {out_path.name}")
             context_parts.append("=== PROTOCOL INFORMATION ===")
             context_parts.append(out_path.read_text(encoding='utf-8'))
+        else:
+            print(f"  ⚠ Protocol file not found: {out_path}")
+    else:
+        print("  ⚠ No protocol configuration found")
 
     # Read variable descriptions
     if 'adam_info' in config:
         adam_cfg = config['adam_info']
         out_path = resolve_path(adam_cfg.get('out', 'outputs/var_descriptions.csv'))
         if out_path.exists():
+            print(f"  ✓ Loading variable descriptions")
             context_parts.append("\n=== VARIABLE DESCRIPTIONS ===")
             context_parts.append(out_path.read_text(encoding='utf-8'))
 
         deps_path = resolve_path(adam_cfg.get('deps_out', 'outputs/dataset_dependencies.csv'))
         if deps_path.exists():
+            print(f"  ✓ Loading dataset dependencies")
             context_parts.append("\n=== DATASET DEPENDENCIES ===")
             context_parts.append(deps_path.read_text(encoding='utf-8'))
 
@@ -234,6 +242,7 @@ def build_data_context(config: Dict, base_path: Path) -> str:
         var_cfg = config['var_filter']
         out_path = resolve_path(var_cfg.get('out', 'outputs/output_var_filter_folder.csv'))
         if out_path.exists():
+            print(f"  ✓ Loading TLF R script analysis")
             context_parts.append("\n=== ANALYSIS PROGRAMS AND VARIABLES USED ===")
             context_parts.append(out_path.read_text(encoding='utf-8'))
 
@@ -254,6 +263,7 @@ def build_data_context(config: Dict, base_path: Path) -> str:
             context_parts.append(out_path.read_text(encoding='utf-8'))
 
     # Read INPUT files for additional context
+    print("  Loading input files for deeper context:")
 
     # Read define.xml if specified
     if 'sdtm_medra_version' in config:
@@ -261,6 +271,7 @@ def build_data_context(config: Dict, base_path: Path) -> str:
         if 'define' in sdtm_cfg:
             define_path = resolve_path(sdtm_cfg['define'])
             if define_path.exists() and define_path.suffix.lower() == '.xml':
+                print(f"    ✓ Reading define.xml metadata")
                 context_parts.append("\n=== DEFINE.XML METADATA ===")
                 context_parts.append(read_xml_file(define_path))
 
@@ -270,6 +281,7 @@ def build_data_context(config: Dict, base_path: Path) -> str:
         if 'spec' in adam_cfg:
             spec_path = resolve_path(adam_cfg['spec'])
             if spec_path.exists() and spec_path.suffix.lower() in ['.xlsx', '.xls']:
+                print(f"    ✓ Reading ADaM specification Excel")
                 context_parts.append("\n=== ADAM SPECIFICATION (XLSX) ===")
                 context_parts.append(read_xlsx_file(spec_path))
 
@@ -324,7 +336,9 @@ def build_data_context(config: Dict, base_path: Path) -> str:
                 except Exception:
                     pass
 
-    return '\n\n'.join(context_parts)
+    full_context = '\n\n'.join(context_parts)
+    print(f"\n  Total context size: {len(full_context):,} characters from {len(context_parts)} sources")
+    return full_context
 
 
 # ========= Question Answering =========
