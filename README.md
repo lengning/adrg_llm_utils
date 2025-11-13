@@ -559,6 +559,8 @@ The workflow manages task dependencies automatically:
               └─────────────────────┘
 ```
 
+**Note on dependencies:** The dependency between TLF Script Analysis and ADaM Info Extract exists because the key ADaM variables documented in the ADRG are based on the variables actually used in the TLF (Table, Listing, and Figure) scripts. This ensures the ADRG focuses on documenting the variables that are relevant to the analysis outputs rather than all variables in the ADaM datasets.
+
 ### Usage
 
 Run the multi-agent workflow:
@@ -603,15 +605,3 @@ The custom agent framework (`multi_agent_adrg/agent_framework.py`) provides:
 - **Skip Flags**: Ability to skip individual tasks
 - **Verbose Logging**: Detailed progress tracking
 
-### Comparison: Traditional vs Multi-Agent
-
-| Aspect | Traditional Pipeline | Multi-Agent Workflow |
-|--------|---------------------|---------------------|
-| Architecture | Sequential script execution | Agent-based collaborative system |
-| Code Organization | Procedural functions | Object-oriented agents |
-| Error Handling | Try-catch blocks | Task-level failure isolation |
-| Extensibility | Add new functions | Add new agents with minimal changes |
-| Dependency Management | Manual ordering | Automatic resolution |
-| Progress Tracking | Print statements | Structured agent logging |
-| Testability | Integration tests | Unit test per agent/task |
-| Maintainability | Good | Excellent |
