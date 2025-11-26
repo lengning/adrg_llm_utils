@@ -156,7 +156,7 @@ python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_
 
 Analyze ADaM R scripts with dataset descriptions:
 ```bash
-python -m adam_scripts_analyzer.main --scripts-dir inputs/adam_scripts --out outputs/adam_programs.csv --spec inputs/adam-pilot-5.xlsx
+python -m adam_scripts_analyzer.main --scripts-dir inputs/adam_scripts --spec inputs/adam-pilot-5.xlsx --out outputs/adam_programs.csv
 ```
 
 Analyze without spec file (descriptions will be empty):
