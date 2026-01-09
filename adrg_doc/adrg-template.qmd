@@ -2,7 +2,7 @@
 title: "Analysis Data Reviewer's Guide"
 subtitle: |
   Sponsor Name; 
-  Study Protocol Number; 
+  Study <Protocol Number>; 
   ADRG Template Version ccyy-mm-dd
 format: 
   pdf:

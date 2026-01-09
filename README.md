@@ -6,20 +6,31 @@ These utility modules provide the scaffolding for LLM-automated ADRG generation.
 
 ## Requirements
 
-- Python 3.8+
-- `pandas`
-- `langchain_openai` and `langchain_core` (for LLM-based modules)
-- `pdfplumber` (for protocol PDF extraction)
-- `markdown` (or `markdown2`) for optional HTML rendering of the filled ADRG
+- Python 3.9+
+  - **Note:** As of 2025/11/26, Python 3.14+ is not compatible with the `langchain-core` and `langchain-openai` packages.
+- Required Python packages (see `requirements.txt`):
+  - `langchain-core>=0.3.80`
+  - `langchain-openai>=0.3.35`
+  - `markdown>=3.9` (or `markdown2` for optional HTML rendering of the filled ADRG)
+  - `openpyxl>=3.1.5`
+  - `pandas>=2.3.3`
+  - `pdfplumber>=0.11.8`
 - Quarto CLI (optional; required if you plan to render the filled ADRG to PDF or HTML)
 - R (for `pkg_describer` module) with packages: `optparse`, `btw`, `ellmer`, `tools`
 
-Install required Python packages:
+### Installation
+
+Install required Python packages using `requirements.txt`:
 
 ```bash
-pip install pandas langchain-openai langchain-core pdfplumber openpyxl markdown
+pip install -r requirements.txt
 ```
-If you prefer `markdown2`, install it instead of `markdown`.
+
+Alternatively, if you prefer using `markdown2` instead of `markdown`, install it separately:
+
+```bash
+pip install -r requirements.txt markdown2
+```
 
 For the `pkg_describer` module, install required R packages:
 
@@ -156,7 +167,7 @@ python -m adam_info.main --spec inputs/adam-pilot-5.xlsx --input outputs/output_
 
 Analyze ADaM R scripts with dataset descriptions:
 ```bash
-python -m adam_scripts_analyzer.main --scripts-dir inputs/adam_scripts --out outputs/adam_programs.csv --spec inputs/adam-pilot-5.xlsx
+python -m adam_scripts_analyzer.main --scripts-dir inputs/adam_scripts --spec inputs/adam-pilot-5.xlsx --out outputs/adam_programs.csv
 ```
 
 Analyze without spec file (descriptions will be empty):
