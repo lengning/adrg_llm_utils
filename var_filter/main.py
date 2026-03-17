@@ -80,9 +80,11 @@ def analyze_r_file(file_path: str, llm) -> dict:
     }
 
 def audit_folder(folder: str, model="gpt-4o-mini") -> List[dict]:
-    files = sorted(glob.glob(os.path.join(folder, "**", "*.r"), recursive=True))
+    files_lower = glob.glob(os.path.join(folder, "**", "*.r"), recursive=True)
+    files_upper = glob.glob(os.path.join(folder, "**", "*.R"), recursive=True)
+    files = sorted(files_lower + files_upper)
     if not files:
-        raise FileNotFoundError(f"No .r files found under: {folder}")
+        raise FileNotFoundError(f"No .r or .R files found under: {folder}")
     llm = build_llm(model=model, temperature=0)
     return [analyze_r_file(f, llm) for f in files]
 

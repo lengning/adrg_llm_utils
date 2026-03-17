@@ -170,7 +170,76 @@ def extract_dataset_dependencies_from_methods(spec_file: str) -> Dict[str, Set[s
                         if re.search(pattern, desc, re.IGNORECASE):
                             dependencies[target_dataset].add(dataset)
                             break
-    
+
+    return dependencies
+
+
+def extract_dependencies_from_r_scripts(scripts_dir: str, all_datasets: Set[str]) -> Dict[str, Set[str]]:
+    """
+    Extract dataset dependencies from R script header comments as a fallback.
+    Looks for patterns like:
+    # Input data: adsl, vs
+    # Name: ADVS
+
+    Args:
+        scripts_dir: Path to directory containing ADaM R scripts
+        all_datasets: Set of all known dataset names (uppercase)
+
+    Returns:
+        Dictionary mapping dataset name to set of datasets it depends on
+    """
+    from pathlib import Path
+
+    dependencies = {}
+    scripts_path = Path(scripts_dir)
+
+    if not scripts_path.exists():
+        return dependencies
+
+    # Find all R scripts
+    r_files = list(scripts_path.glob('*.r')) + list(scripts_path.glob('*.R'))
+
+    for r_file in r_files:
+        try:
+            with open(r_file, 'r', encoding='utf-8') as f:
+                # Read first 50 lines (header section)
+                lines = [f.readline() for _ in range(50)]
+                content = ''.join(lines)
+
+            # Look for dataset name in header (e.g., "# Name: ADVS")
+            dataset_match = re.search(r'#\s*Name:\s*([A-Z]{2,10})', content, re.IGNORECASE)
+            if not dataset_match:
+                # Try to infer from filename (e.g., ad_advs.R -> ADVS)
+                filename = r_file.stem
+                for prefix in ['ad_', 'an_', 'adam_']:
+                    if filename.startswith(prefix):
+                        filename = filename[len(prefix):]
+                        break
+                dataset_name = filename.upper()
+            else:
+                dataset_name = dataset_match.group(1).upper()
+
+            if dataset_name not in all_datasets:
+                continue
+
+            # Look for input data declaration (e.g., "# Input data: adsl, vs")
+            input_match = re.search(r'#\s*Input\s+data:\s*([^\n]+)', content, re.IGNORECASE)
+            if input_match:
+                input_text = input_match.group(1)
+                # Extract dataset names (comma or space separated)
+                input_datasets = re.findall(r'\b([a-z]{2,10})\b', input_text.lower())
+
+                if dataset_name not in dependencies:
+                    dependencies[dataset_name] = set()
+
+                for input_ds in input_datasets:
+                    input_ds_upper = input_ds.upper()
+                    if input_ds_upper in all_datasets and input_ds_upper != dataset_name:
+                        dependencies[dataset_name].add(input_ds_upper)
+
+        except Exception:
+            continue
+
     return dependencies
 
 
@@ -281,21 +350,47 @@ def extract_variable_descriptions(
 
 def extract_dataset_dependencies(
     spec_file: str,
-    output_file: str
+    output_file: str,
+    scripts_dir: str = None
 ) -> pd.DataFrame:
     """
-    Extract dataset dependencies by analyzing Methods sheet.
-    
+    Extract dataset dependencies by analyzing Methods sheet and optionally R scripts.
+
     Args:
         spec_file: Path to Excel file with Datasets and Methods sheets
         output_file: Path to output CSV file
-        
+        scripts_dir: Optional path to ADaM R scripts directory for fallback dependency extraction
+
     Returns:
         DataFrame with dataset name and dependencies columns
     """
     # Get dependencies from Methods sheet
     dependencies = extract_dataset_dependencies_from_methods(spec_file)
-    
+
+    # If scripts_dir is provided, also extract dependencies from R script comments
+    # This serves as a fallback for datasets not covered in Methods sheet
+    if scripts_dir:
+        try:
+            # Get all dataset names for reference
+            datasets_df = pd.read_excel(spec_file, sheet_name='Datasets')
+            all_datasets = set(datasets_df['Dataset'].dropna().str.strip().unique())
+
+            # Extract dependencies from R scripts
+            script_deps = extract_dependencies_from_r_scripts(scripts_dir, all_datasets)
+
+            # Merge with Methods sheet dependencies (Methods sheet takes precedence)
+            for dataset, deps in script_deps.items():
+                if dataset in dependencies:
+                    # Add script-based dependencies if Methods sheet didn't find any
+                    if not dependencies[dataset]:
+                        dependencies[dataset] = deps
+                    else:
+                        # Merge both sources
+                        dependencies[dataset] = dependencies[dataset].union(deps)
+        except Exception as e:
+            # Silently continue if R script parsing fails
+            pass
+
     # Build output rows
     output_rows = []
     for dataset in sorted(dependencies.keys()):
@@ -305,17 +400,17 @@ def extract_dataset_dependencies(
             'dataset name': dataset,
             'depend on the following datasets': deps_str
         })
-    
+
     # Create output DataFrame
     output_df = pd.DataFrame(output_rows)
-    
+
     # Write to CSV
     output_dir = os.path.dirname(output_file)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-    
+
     output_df.to_csv(output_file, index=False)
-    
+
     return output_df
 
 
@@ -496,6 +591,10 @@ def main():
         help='Path to output CSV file for dataset inventory table (optional)'
     )
     parser.add_argument(
+        '--scripts-dir',
+        help='Path to ADaM R scripts directory (optional, used as fallback for dependency extraction)'
+    )
+    parser.add_argument(
         '--print',
         action='store_true',
         help='Print results to stdout'
@@ -515,7 +614,7 @@ def main():
     
     # Extract dataset dependencies if requested
     if args.deps_out:
-        deps_df = extract_dataset_dependencies(args.spec, args.deps_out)
+        deps_df = extract_dataset_dependencies(args.spec, args.deps_out, args.scripts_dir)
 
         if args.print:
             print("\nDataset Dependencies:")

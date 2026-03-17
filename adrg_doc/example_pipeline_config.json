@@ -6,7 +6,7 @@
   "protocol_retrieve": {
     "protocol": "inputs/protocol_cdiscpilot01.pdf",
     "out": "outputs/protocol_description.md",
-    "model": "gpt-4o-mini",
+    "model": "gpt-5-mini",
     "max_pages": null
   },
   "var_filter": {

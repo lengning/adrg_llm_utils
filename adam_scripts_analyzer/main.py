@@ -32,6 +32,8 @@ def extract_output_files(r_code: str) -> List[str]:
         r'xpt_write\s*\([^,]+,\s*["\']([^"\']+)["\']',  # xpt_write(df, "file.xpt")
         r'write_xpt\s*\([^,]+,\s*["\']([^"\']+)["\']',  # write_xpt(df, "file.xpt")
         r'haven::write_xpt\s*\([^,]+,\s*["\']([^"\']+)["\']',  # haven::write_xpt(df, "file.xpt")
+        r'write_parquet\s*\([^,]+,\s*file\.path\([^,]+,\s*["\']([^"\']+)["\']',  # write_parquet(df, file.path(..., "file.parquet"))
+        r'arrow::write_parquet\s*\([^,]+,\s*file\.path\([^,]+,\s*["\']([^"\']+)["\']',  # arrow::write_parquet(df, file.path(..., "file.parquet"))
     ]
 
     for pattern in save_patterns:
@@ -192,8 +194,16 @@ def write_results_to_csv(
             outputs = ', '.join(result['outputs']) if result['outputs'] else ''
 
             # Get dataset description by matching program name to dataset name
-            # Program names are lowercase (e.g., 'adsl'), dataset names are uppercase (e.g., 'ADSL')
-            dataset_name = program_name.upper()
+            # Program names may have prefixes like 'ad_' or 'an_' (e.g., 'ad_adsl')
+            # Strip common prefixes before matching
+            program_base = program_name
+            for prefix in ['ad_', 'an_', 'adam_']:
+                if program_base.startswith(prefix):
+                    program_base = program_base[len(prefix):]
+                    break
+
+            # Convert to uppercase to match dataset names (e.g., 'adsl' -> 'ADSL')
+            dataset_name = program_base.upper()
             description = dataset_descriptions.get(dataset_name, '')
 
             writer.writerow([program_name, outputs, description])

@@ -185,7 +185,7 @@ def run_var_filter(config: Dict[str, Any]) -> Path:
     return output_csv
 
 
-def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, Path, Optional[Path]]:
+def run_adam_info(config: Dict[str, Any], var_filter_csv: Path, scripts_dir: Optional[Path] = None) -> Tuple[Path, Path, Optional[Path]]:
     if not var_filter_csv.exists():
         raise PipelineError(
             "var_filter CSV required for adam_info not found: "
@@ -233,6 +233,10 @@ def run_adam_info(config: Dict[str, Any], var_filter_csv: Path) -> Tuple[Path, P
 
     if inventory_path:
         argv.extend(["--inventory-out", str(inventory_path)])
+
+    # Add scripts_dir if provided (for fallback dependency extraction)
+    if scripts_dir and scripts_dir.exists():
+        argv.extend(["--scripts-dir", str(scripts_dir)])
 
     if config.get("print"):
         argv.append("--print")
@@ -594,8 +598,8 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--question-model",
-        default="gpt-4o-mini",
-        help="LLM model to use for question answering (default: gpt-4o-mini)."
+        default="gpt-5-mini",
+        help="LLM model to use for question answering (default: gpt-5-mini)."
     )
     return parser.parse_args(list(argv) if argv is not None else None)
 
@@ -661,7 +665,10 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
         )
 
     if not args.skip_adam_info:
-        var_desc_output, deps_output, inventory_output = run_adam_info(adam_info_cfg, var_filter_output)
+        # Get scripts_dir from adam_scripts_analyzer config for dependency extraction fallback
+        scripts_dir_value = adam_scripts_cfg.get("scripts_dir")
+        scripts_dir = resolve_path(scripts_dir_value) if scripts_dir_value else None
+        var_desc_output, deps_output, inventory_output = run_adam_info(adam_info_cfg, var_filter_output, scripts_dir)
     else:
         var_desc_output = resolve_path(adam_info_cfg.get("out", "var_descriptions.csv"))
         if not var_desc_output.exists():
